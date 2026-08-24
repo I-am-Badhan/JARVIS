@@ -29,13 +29,16 @@ async def jarvis_session(ctx: agents.JobContext):
         stt=get_stt(),
         llm=get_llm(),
         tts=get_tts(),
-        vad=silero.VAD.load(
-            min_speech_duration=0.3,
-        ),
+        vad=silero.VAD.load(),
         turn_handling=TurnHandlingOptions(
             turn_detection=MultilingualModel(),
-            allow_interruptions=False,
+            interruption={
+                "min_duration" : 0.65,
+                "min_words" : 1,
+                "mode" : "vad",
+            }
         ),
+        # resume_false_interruption=False,
         
     )
 
