@@ -5,8 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "livekit-agents>=1.7.0",
+    "edge-tts>=7.2.8",
+    "livekit-agents[cartesia,google]~=1.7",
     "livekit-plugins-deepgram>=1.7.0",
+    "livekit-plugins-elevenlabs>=1.7.0",
     "livekit-plugins-groq>=1.7.0",
     "livekit-plugins-sarvam>=1.7.0",
     "livekit-plugins-silero>=1.7.0",

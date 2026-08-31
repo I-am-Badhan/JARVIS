@@ -1,0 +1,5 @@
+GROQ_LLM_MODEL = "openai/gpt-oss-120b"
+GROQ_LLM_TEMPARATURE = 0.6
+
+GOOGLE_LLM_MODEL = "gemini-3.5-flash-lite"
+GOOGLE_LLM_TEMPARATURE = 0.5
