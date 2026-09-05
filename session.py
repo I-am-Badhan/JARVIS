@@ -3,7 +3,7 @@ from livekit.plugins import silero
 
 from services.stt_service import *
 from services.llm_service import *
-from services.tts_service import *
+from services.tts.tts_service import *
 from utils.interruption import *
 from services.realtime_llm_service import *
 

@@ -20,6 +20,11 @@ async def jarvis_session(ctx: agents.JobContext):
 
     await session.generate_reply(
         instructions=(
-            "Welcome the user and ask for today's plan."
+            "Greet the user as JARVIS, as if the system has just been activated or the user has returned. "
+            "Address the user as 'sir' or occasionally 'boss'. "
+            "Use a short, natural greeting similar in feel to 'Welcome, sir' or 'Welcome back, sir'. "
+            "Then briefly ask what the user has planned for today or what they would like to get started with. "
+            "Keep it calm, confident, sophisticated, and conversational. "
+            "Do not give a long introduction, do not explain your role, and do not use generic chatbot phrases."
         )
     )

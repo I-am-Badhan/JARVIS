@@ -1,5 +1,5 @@
 from livekit.plugins import sarvam, cartesia, google, elevenlabs
-from services.edge_tts_service import EdgeTTS
+from services.tts.edge_tts_service import EdgeTTS
 from config.tts_config import *
 from config.api_key_config import ELEVEN_API_KEY
 

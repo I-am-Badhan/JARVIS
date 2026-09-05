@@ -6,6 +6,7 @@ def get_groq_llm() -> groq.LLM:
     return groq.LLM(
         model=GROQ_LLM_MODEL,
         temperature=GROQ_LLM_TEMPARATURE,
+        parallel_tool_calls=True,
     )
 
 def get_google_llm() -> google.LLM:
