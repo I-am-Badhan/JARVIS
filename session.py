@@ -13,8 +13,8 @@ def create_session(mode: str) -> AgentSession:
 
         return AgentSession(
             stt=get_stt(),
-            llm=get_groq_llm(),
-            tts=get_cartesia_tts(),
+            llm=get_google_llm(),
+            tts=get_sarvam_tts(),
             vad=silero.VAD.load(),
             turn_handling=get_turn_handling(),
         )
