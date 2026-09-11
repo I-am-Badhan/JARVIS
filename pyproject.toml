@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "edge-tts>=7.2.8",
+    "fastapi>=0.141.1",
     "httpx>=0.28.1",
     "livekit-agents[cartesia,google]~=1.7",
     "livekit-plugins-deepgram>=1.7.0",
@@ -20,6 +21,7 @@ dependencies = [
     "python-dotenv>=1.2.3",
     "pywin32>=312",
     "tzdata>=2026.3",
+    "uvicorn>=0.52.4",
 ]
 
 [dependency-groups]

@@ -1,7 +1,6 @@
 from livekit.agents import RunContext, function_tool
-
 from services.search.search_manager import search_web
-
+from config.session_config import SESSION_MODE
 
 @function_tool(
     name="get_realtime_information",
@@ -19,10 +18,11 @@ async def get_realtime_information(
 ) -> dict:
 
     # Immediate acknowledgement before starting web search
-    await context.session.say(
-        "Thik hai sir, abhi search karta hoon.",
-        add_to_chat_ctx=False,
-    )
+    if SESSION_MODE == "pipeline":
+        await context.session.say(
+            "Thik hai sir, abhi search karta hoon.",
+            add_to_chat_ctx=False,
+        )
     result = await search_web(query)
 
     return result

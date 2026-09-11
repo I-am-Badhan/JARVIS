@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J.A.R.V.I.S. HUD System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="hud-background">
+    <div class="grid-overlay"></div>
+  </div>
+
+  <div class="hud-container">
+    <!-- TOP HEADER -->
+    <header class="hud-header">
+      <div class="header-left">
+        <div class="tech-box time-box">
+          <div class="box-corner tl"></div><div class="box-corner br"></div>
+          <div class="date-label" id="current-date">TUE, 08 SEP 2026</div>
+          <div class="time-label" id="current-time">01:24 PM</div>
+        </div>
+
+        <div class="tech-box weather-box">
+          <div class="weather-city">KOLKATA, IN</div>
+          <div class="weather-row">
+            <svg class="weather-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+              <path d="M12 19v3m-4-2v2m8-2v2" stroke-dasharray="1 2"/>
+            </svg>
+            <span class="temp">28°C</span>
+          </div>
+          <div class="weather-cond">Haze</div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="top-notch"><span class="notch-accent"></span></div>
+        <h1 class="jarvis-title">J A R V I S</h1>
+        <p class="jarvis-sub">YOUR INTELLIGENT COMPANION</p>
+      </div>
+
+      <div class="header-right">
+        <div class="slogan-badge">
+          <span>STAY PRODUCTIVE</span>
+          <span class="bullet">•</span>
+          <span>STAY AHEAD</span>
+        </div>
+        <div class="window-controls">
+          <button class="win-btn">—</button>
+          <button class="win-btn">▢</button>
+          <button class="win-btn close">✕</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN HUD BODY -->
+    <main class="hud-main">
+      <!-- LEFT SIDEBAR -->
+      <aside class="left-sidebar">
+        <nav class="nav-menu">
+          <button class="nav-btn active">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span>
+            <span class="nav-text">HOME</span>
+          </button>
+          <button class="nav-btn">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg></span>
+            <span class="nav-text">APPS</span>
+          </button>
+          <button class="nav-btn">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg></span>
+            <span class="nav-text">FILES</span>
+          </button>
+          <button class="nav-btn">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+            <span class="nav-text">BROWSER</span>
+          </button>
+          <button class="nav-btn">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></span>
+            <span class="nav-text">MEDIA</span>
+          </button>
+          <button class="nav-btn">
+            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg></span>
+            <span class="nav-text">SYSTEM</span>
+          </button>
+        </nav>
+
+        <!-- REAL HARDWARE POWER GAUGE -->
+        <div class="power-gauge-card tech-panel">
+          <div class="gauge-wrap">
+            <svg class="circular-progress" viewBox="0 0 120 120">
+              <circle class="circle-bg" cx="60" cy="60" r="48" />
+              <circle class="circle-fill" id="power-circle" cx="60" cy="60" r="48" stroke-dasharray="301.6" stroke-dashoffset="0" />
+            </svg>
+            <div class="gauge-center-text">
+              <span class="gauge-val" id="power-percent">--%</span>
+            </div>
+          </div>
+          <div class="gauge-labels">
+            <span class="title">SYSTEM POWER</span>
+            <span class="status-opt" id="power-status-label">INITIALIZING</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CENTER-LEFT: 3D ANIMATED EARTH & CURRENT TASKS -->
+      <section class="col-center-left">
+        <div class="globe-panel tech-panel">
+          <div class="panel-corners"></div>
+          <div class="globe-canvas-wrapper">
+            <canvas id="globe-canvas" width="280" height="200"></canvas>
+          </div>
+          <div class="global-status-bar">
+            <span class="status-text">GLOBAL STATUS</span>
+            <span class="online-indicator"><span class="dot"></span> ONLINE</span>
+          </div>
+        </div>
+
+        <div class="tasks-panel tech-panel">
+          <div class="panel-corners orange-tint"></div>
+          <div class="panel-header">CURRENT TASKS</div>
+          <ul class="task-list">
+            <li class="task-item done">
+              <span class="task-icon check">✔</span>
+              <span class="task-text" id="task-1">System Online</span>
+            </li>
+            <li class="task-item active">
+              <span class="task-icon spin">⭮</span>
+              <span class="task-text" id="task-2">Telemetry Sensors Active</span>
+            </li>
+            <li class="task-item active">
+              <span class="task-icon spin">⭮</span>
+              <span class="task-text" id="task-3">LiveKit WebRTC Channel Linked</span>
+            </li>
+            <li class="task-item pending">
+              <span class="task-icon circle">○</span>
+              <span class="task-text" id="task-4">Awaiting Commander Voice</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- CENTER ARC REACTOR CORE -->
+      <section class="col-center-core">
+        <div class="reactor-wrapper">
+          <svg class="reactor-svg" viewBox="0 0 360 360">
+            <defs>
+              <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <filter id="glow-orange" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <circle cx="180" cy="180" r="168" class="svg-ring-thin" />
+            
+            <g class="spin-cw-slow">
+              <circle cx="180" cy="180" r="158" class="svg-ring-dashed" />
+              <circle cx="180" cy="180" r="146" class="svg-ring-ticks" />
+            </g>
+
+            <g class="spin-cw-med">
+              <path d="M 270 90 A 128 128 0 0 1 308 180" class="svg-arc-orange" filter="url(#glow-orange)" />
+              <path d="M 260 98 A 116 116 0 0 1 294 180" class="svg-arc-orange-thin" />
+              <path d="M 90 270 A 128 128 0 0 1 52 180" class="svg-arc-orange" filter="url(#glow-orange)" />
+              <path d="M 100 262 A 116 116 0 0 1 66 180" class="svg-arc-orange-thin" />
+            </g>
+
+            <g class="spin-ccw-fast">
+              <circle cx="180" cy="180" r="105" class="svg-arc-cyan-segmented" filter="url(#glow-cyan)" />
+              <circle cx="180" cy="180" r="88" class="svg-ring-inner-dots" />
+            </g>
+
+            <g class="spin-cw-fast">
+              <circle cx="180" cy="180" r="68" class="svg-inner-circle" />
+              <circle cx="180" cy="180" r="54" class="svg-inner-notched" />
+            </g>
+
+            <g class="reactor-core-beacon">
+              <circle cx="180" cy="180" r="38" class="svg-core-iris" />
+              <circle cx="180" cy="180" r="16" class="svg-core-bulb" filter="url(#glow-cyan)" />
+              <circle cx="180" cy="180" r="7" class="svg-core-hotspot" />
+            </g>
+          </svg>
+        </div>
+
+        <div class="hud-status-bracket">
+          <span class="bracket-l">[</span>
+          <div class="status-body">
+            <span class="status-main" id="jarvis-status-text">INITIALIZING</span>
+            <span class="status-sub" id="jarvis-sub-text">CONNECTING TO CORE...</span>
+          </div>
+          <span class="bracket-r">]</span>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: REAL HARDWARE TELEMETRY & LIVE RECENT ACTIVITY -->
+      <section class="col-right">
+        <div class="system-stats-panel tech-panel">
+          <div class="panel-corners"></div>
+          <div class="panel-header-row">
+            <span class="panel-header">SYSTEM STATUS</span>
+            <div class="telemetry-tags">
+              <span>THINK</span> • <span>ANALYZE</span> • <span>ASSIST</span> • <span>EVOLVE</span>
+            </div>
+          </div>
+          
+          <div class="stat-rows">
+            <div class="stat-row">
+              <span class="stat-name">CPU</span>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill cyan" id="cpu-bar" style="width: 0%;"></div>
+              </div>
+              <span class="stat-pct" id="cpu-val">0%</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-name">RAM</span>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill cyan" id="ram-bar" style="width: 0%;"></div>
+              </div>
+              <span class="stat-pct" id="ram-val">0%</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-name">DISK</span>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill cyan" id="disk-bar" style="width: 0%;"></div>
+              </div>
+              <span class="stat-pct" id="disk-val">0%</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-name">NETWORK</span>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill green" id="net-bar" style="width: 100%;"></div>
+              </div>
+              <span class="stat-pct green-text" id="net-val">CHECKING</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- REAL ACTIVITY LOG -->
+        <div class="activity-panel tech-panel">
+          <div class="panel-corners orange-tint"></div>
+          <div class="activity-header">
+            <span class="panel-header">RECENT ACTIVITY</span>
+            <a href="#" class="view-all-link" id="clear-act-btn">CLEAR</a>
+          </div>
+          <ul class="activity-list" id="activity-log">
+            <!-- Dynamically populated by live events -->
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <!-- BOTTOM CONSOLE -->
+    <footer class="hud-footer">
+      <div class="interaction-console">
+        <div class="visualizer-container">
+          <canvas id="waveform-canvas"></canvas>
+        </div>
+
+        <div class="command-capsule">
+          <button class="capsule-btn mic-btn" id="voice-btn" title="Toggle Mic">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+            </svg>
+          </button>
+          
+          <input type="text" id="ai-input" class="capsule-input" placeholder="Ask me anything..." autocomplete="off" />
+
+          <button class="capsule-btn send-btn" id="send-btn" title="Send Command">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="capsule-tags">
+          <span>VOICE</span> <span class="div">|</span>
+          <span>VISION</span> <span class="div">|</span>
+          <span>ACTION</span> <span class="div">|</span>
+          <span>KNOWLEDGE</span> <span class="div">|</span>
+          <span>EVERYWHERE</span>
+        </div>
+      </div>
+
+      <div class="landscape-card tech-panel">
+        <div class="landscape-art">
+          <canvas id="landscape-canvas"></canvas>
+        </div>
+        <div class="landscape-quotes">
+          <div>- A SMARTER</div>
+          <div>- TOMORROW</div>
+          <div>- TOGETHER</div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- LiveKit Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

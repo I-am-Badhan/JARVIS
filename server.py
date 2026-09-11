@@ -14,7 +14,7 @@ from utils.greet import build_greeting_prompt
 server = AgentServer()
 
 
-@server.rtc_session(agent_name=AGENT_NAME)
+@server.rtc_session()
 async def jarvis_session(ctx: agents.JobContext):
 
     mode = SESSION_MODE
@@ -30,6 +30,7 @@ async def jarvis_session(ctx: agents.JobContext):
         GENERATE_REPLY
     )
 
-    await session.generate_reply(
-        instructions=greeting_prompt
-    )
+    if mode == "pipeline":
+        await session.generate_reply(
+            instructions=greeting_prompt
+        )

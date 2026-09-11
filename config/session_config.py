@@ -1,1 +1,2 @@
-SESSION_MODE = "pipeline"
+SESSION_MODE = "realtime"
+# SESSION_MODE = "pipeline"
