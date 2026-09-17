@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JARVIS System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/theme.css">
+  <style>
+    .gauges-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; align-items: center; flex: 1; }
+    .gauge-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .svg-box { position: relative; width: 78px; height: 78px; }
+    .svg-box svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .g-bg { fill: none; stroke: rgba(0, 243, 255, 0.1); stroke-width: 8; }
+    .g-fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+    .g-fill.cyan { stroke: var(--cyan-primary); filter: drop-shadow(0 0 6px var(--cyan-primary)); }
+    .g-fill.green { stroke: var(--green-status); filter: drop-shadow(0 0 6px var(--green-status)); }
+    .g-fill.purple { stroke: var(--purple-accent); filter: drop-shadow(0 0 6px var(--purple-accent)); }
+    .g-fill.orange { stroke: var(--orange-accent); filter: drop-shadow(0 0 6px var(--orange-accent)); }
+    .g-val { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; }
+    .g-lbl { font-family: var(--font-mono); font-size: 0.7rem; color: #79a8cb; }
+    .sys-footer { display: flex; justify-content: space-between; border-top: 1px dashed rgba(0, 243, 255, 0.2); padding-top: 6px; font-family: var(--font-mono); font-size: 0.72rem; }
+  </style>
+</head>
+<body>
+  <jarvis-widget title="SYSTEM STATUS" icon="⚙">
+    <div class="gauges-grid">
+      <div class="gauge-item">
+        <div class="svg-box">
+          <svg viewBox="0 0 100 100"><circle class="g-bg" cx="50" cy="50" r="40"/><circle class="g-fill cyan" id="cpu-ring" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="180"/></svg>
+          <div class="g-val" id="cpu-num">--%</div>
+        </div>
+        <span class="g-lbl">CPU</span>
+      </div>
+
+      <div class="gauge-item">
+        <div class="svg-box">
+          <svg viewBox="0 0 100 100"><circle class="g-bg" cx="50" cy="50" r="40"/><circle class="g-fill green" id="net-ring" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="50"/></svg>
+          <div class="g-val" id="net-val">OK</div>
+        </div>
+        <span class="g-lbl">NETWORK</span>
+      </div>
+
+      <div class="gauge-item">
+        <div class="svg-box">
+          <svg viewBox="0 0 100 100"><circle class="g-bg" cx="50" cy="50" r="40"/><circle class="g-fill purple" id="ram-ring" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="140"/></svg>
+          <div class="g-val" id="ram-num">--%</div>
+        </div>
+        <span class="g-lbl">RAM</span>
+      </div>
+
+      <div class="gauge-item">
+        <div class="svg-box">
+          <svg viewBox="0 0 100 100"><circle class="g-bg" cx="50" cy="50" r="40"/><circle class="g-fill orange" id="disk-ring" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="110"/></svg>
+          <div class="g-val" id="disk-num">--%</div>
+        </div>
+        <span class="g-lbl">DISK</span>
+      </div>
+    </div>
+
+    <div class="sys-footer">
+      <div>SYSTEM POWER: <span id="power-text" style="color: var(--cyan-primary);">OPTIMAL</span></div>
+      <div>STATUS: <span style="color: var(--green-status);">ACTIVE</span></div>
+    </div>
+  </jarvis-widget>
+
+  <script src="../../shared/jarvis-widget.js"></script>
+  <script src="../../shared/window-manager.js"></script>
+  <script src="../../shared/event-bus.js"></script>
+  <script src="../../shared/window-factory.js"></script>
+  <script src="../../shared/api.js"></script>
+  <script src="system.js"></script>
+</body>
+</html>

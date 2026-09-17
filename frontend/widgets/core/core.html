@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JARVIS Core</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/theme.css">
+  <style>
+    .core-top-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 6px 8px;
+      font-family: var(--font-mono);
+      border-bottom: 1px dashed rgba(0, 243, 255, 0.25);
+    }
+    .core-time {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--cyan-primary);
+      text-shadow: 0 0 8px var(--cyan-glow);
+    }
+    .core-date, .weather-lbl { font-size: 0.62rem; color: #72a8cb; }
+    .jarvis-label {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      letter-spacing: 5px;
+      color: #fff;
+      text-shadow: 0 0 12px var(--cyan-glow);
+      margin-right: -5px;
+    }
+    .online-status { font-size: 0.62rem; color: var(--green-status); letter-spacing: 1px; }
+    .weather-val { font-family: var(--font-display); font-size: 0.95rem; color: var(--cyan-primary); font-weight: 700; }
+    
+    .reactor-box { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+    .reactor-svg { width: 240px; height: 240px; }
+    .svg-ring-thin { fill: none; stroke: rgba(0, 243, 255, 0.35); stroke-width: 1.5; }
+    .svg-ring-dashed { fill: none; stroke: rgba(0, 243, 255, 0.5); stroke-width: 2.5; stroke-dasharray: 8 12; }
+    .svg-ring-ticks { fill: none; stroke: rgba(0, 243, 255, 0.4); stroke-width: 6; stroke-dasharray: 2 6; }
+    .svg-arc-orange { fill: none; stroke: var(--orange-accent); stroke-width: 9; stroke-linecap: round; }
+    .svg-arc-cyan-seg { fill: none; stroke: var(--cyan-primary); stroke-width: 5; stroke-dasharray: 65 25 35 20; }
+    .svg-core-iris { fill: radial-gradient(circle, rgba(0, 243, 255, 0.8), rgba(2, 14, 28, 0.9)); stroke: var(--cyan-primary); stroke-width: 2.5; }
+    .svg-core-bulb { fill: #00f3ff; }
+    
+    .spin-cw { transform-origin: 180px 180px; animation: spin 20s linear infinite; }
+    .spin-ccw { transform-origin: 180px 180px; animation: spin-rev 12s linear infinite; }
+    .status-bracket { display: flex; justify-content: center; align-items: center; gap: 8px; font-family: var(--font-display); font-size: 0.92rem; color: var(--cyan-primary); }
+    .vis-wrap { display: flex; justify-content: center; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <jarvis-widget title="ARC REACTOR CORE" icon="⚡">
+    <div class="core-top-info">
+      <div>
+        <div class="core-time" id="core-time">--:--:-- --</div>
+        <div class="core-date" id="core-date">SYNCING DATE...</div>
+      </div>
+      <div style="text-align: center;">
+        <div class="jarvis-label">JARVIS</div>
+        <span class="online-status">● ONLINE</span>
+      </div>
+      <div style="text-align: right;">
+        <span class="weather-val" id="core-weather">--°C</span>
+        <div class="weather-lbl">KHARAGPUR</div>
+      </div>
+    </div>
+
+    <div class="reactor-box">
+      <svg class="reactor-svg" viewBox="0 0 360 360">
+        <circle cx="180" cy="180" r="168" class="svg-ring-thin" />
+        <g class="spin-cw">
+          <circle cx="180" cy="180" r="158" class="svg-ring-dashed" />
+          <circle cx="180" cy="180" r="146" class="svg-ring-ticks" />
+        </g>
+        <g class="spin-cw">
+          <path d="M 270 90 A 128 128 0 0 1 308 180" class="svg-arc-orange" />
+          <path d="M 90 270 A 128 128 0 0 1 52 180" class="svg-arc-orange" />
+        </g>
+        <g class="spin-ccw">
+          <circle cx="180" cy="180" r="105" class="svg-arc-cyan-seg" />
+        </g>
+        <circle cx="180" cy="180" r="38" class="svg-core-iris" />
+        <circle cx="180" cy="180" r="16" class="svg-core-bulb" />
+      </svg>
+    </div>
+
+    <div class="status-bracket">
+      <span>[</span> <span id="status-text">SYSTEM READY</span> <span>]</span>
+    </div>
+
+    <div class="vis-wrap">
+      <canvas id="waveform-canvas" width="240" height="24"></canvas>
+    </div>
+  </jarvis-widget>
+
+  <script src="../../shared/jarvis-widget.js"></script>
+  <script src="../../shared/window-manager.js"></script>
+  <script src="../../shared/event-bus.js"></script>
+  <script src="../../shared/window-factory.js"></script>
+  <script src="../../shared/api.js"></script>
+  <script src="core.js"></script>
+</body>
+</html>

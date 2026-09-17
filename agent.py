@@ -2,7 +2,13 @@ from livekit.agents import Agent
 from prompts.system_prompt import JARVIS_INSTRUCTIONS
 from tools.date_time import get_date_time
 from tools.realtime_information import get_realtime_information
-from tools.DesktopAutomation.apps import open_application, close_application, switch_to_application
+from tools.DesktopAutomation.apps import (
+    open_application, 
+    close_application, 
+    switch_to_application, 
+    open_website,
+    close_tab
+)
 from tools.DesktopAutomation.input_control import type_text, type_text_unicode, press_key
 
 class Jarvis(Agent):
@@ -16,6 +22,8 @@ class Jarvis(Agent):
                 open_application,
                 close_application,
                 switch_to_application,
+                open_website,
+                close_tab,
                 type_text, 
                 type_text_unicode, 
                 press_key,

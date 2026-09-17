@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JARVIS Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/theme.css">
+  <style>
+    .chat-history { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 4px; }
+    .chat-msg { display: flex; gap: 8px; }
+    .chat-msg.jarvis .msg-bubble { background: rgba(0, 243, 255, 0.12); border: 1px solid rgba(0, 243, 255, 0.25); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; }
+    .chat-msg.user { justify-content: flex-end; }
+    .chat-msg.user .msg-bubble { background: rgba(0, 119, 255, 0.25); border: 1px solid rgba(0, 140, 255, 0.4); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; color: #fff; }
+    .chat-input-row { display: flex; gap: 8px; background: rgba(3, 16, 32, 0.85); border: 1.5px solid var(--cyan-primary); border-radius: 20px; padding: 4px 10px; margin-top: 8px; }
+    .chat-input-row input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-family: var(--font-body); font-size: 0.95rem; }
+    .send-btn, .mic-btn { background: transparent; border: none; color: var(--cyan-primary); cursor: pointer; font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <jarvis-widget title="JARVIS CHAT" icon="💬">
+    <div class="chat-history" id="chat-history">
+      <div class="chat-msg jarvis">
+        <div class="msg-bubble">Good day, Commander. How can I assist you?</div>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <button class="mic-btn" id="mic-btn">🎙</button>
+      <input type="text" id="chat-input" placeholder="Type a command..." autocomplete="off" />
+      <button class="send-btn" id="send-btn">➤</button>
+    </div>
+  </jarvis-widget>
+
+  <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+  <script src="../../shared/jarvis-widget.js"></script>
+  <script src="../../shared/window-manager.js"></script>
+  <script src="../../shared/event-bus.js"></script>
+  <script src="../../shared/window-factory.js"></script>
+  <script src="../../shared/api.js"></script>
+  <script src="chat.js"></script>
+</body>
+</html>

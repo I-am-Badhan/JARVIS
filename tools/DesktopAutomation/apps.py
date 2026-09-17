@@ -2,243 +2,297 @@ import asyncio
 import logging
 import platform
 import subprocess
-
+import webbrowser
+from typing import Optional
 import psutil
 
 from livekit.agents import function_tool, RunContext, ToolError
-
 from .desktop_registry import APP_REGISTRY, resolve_app
-from .desktop_state import set_last_opened, clear_last_opened, get_last_opened
+from .desktop_state import set_last_opened, clear_last_opened
 
 logger = logging.getLogger("desktop_automation")
 OS_TYPE = platform.system().lower()
 
-STARTUP_TIMEOUT_S = 6.0
-POLL_INTERVAL_S = 0.2
-SHUTDOWN_TIMEOUT_S = 4.0
+STARTUP_TIMEOUT_S = 8.0
+POLL_INTERVAL_S = 0.3
 
 
-def _is_process_running(process_name: str) -> psutil.Process | None:
-    """Return the first matching running process, or None."""
+def _release_all_modifiers():
+    """আটকে থাকা Alt, AltGr, Ctrl বা Shift কি থাকলে তাৎক্ষণিক রিলিজ করা।"""
+    if OS_TYPE != "windows":
+        return
+
+    import win32api
+    import win32con
+
+    vks = [
+        win32con.VK_MENU,       
+        win32con.VK_LMENU,     
+        win32con.VK_RMENU,     
+        win32con.VK_CONTROL,   
+        win32con.VK_LCONTROL,
+        win32con.VK_RCONTROL,
+        win32con.VK_SHIFT
+    ]
+    for vk in vks:
+        win32api.keybd_event(vk, 0, win32con.KEYEVENTF_KEYUP, 0)
+
+
+def _get_all_matching_pids(process_name: str) -> list[int]:
     target = process_name.lower()
+    pids = []
     for proc in psutil.process_iter(["pid", "name"]):
         try:
             if proc.info["name"] and proc.info["name"].lower() == target:
-                return proc
+                pids.append(proc.info["pid"])
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
-    return None
+    return pids
 
 
-async def _wait_until_running(process_name: str, timeout_s: float) -> psutil.Process | None:
-    elapsed = 0.0
-    while elapsed < timeout_s:
-        proc = _is_process_running(process_name)
-        if proc:
-            return proc
-        await asyncio.sleep(POLL_INTERVAL_S)
-        elapsed += POLL_INTERVAL_S
-    return None
+def _find_visible_hwnd_by_process(process_name: str) -> int | None:
+    if OS_TYPE != "windows":
+        return None
+
+    import win32gui
+    import win32process
+
+    target_pids = set(_get_all_matching_pids(process_name))
+    if not target_pids:
+        return None
+
+    matched_hwnd = None
+
+    def enum_handler(hwnd, _):
+        nonlocal matched_hwnd
+        if not win32gui.IsWindowVisible(hwnd):
+            return
+
+        rect = win32gui.GetWindowRect(hwnd)
+        if (rect[2] - rect[0] <= 0) or (rect[3] - rect[1] <= 0):
+            return
+
+        title = win32gui.GetWindowText(hwnd).strip()
+        if not title:
+            return
+
+        if process_name.lower() == "explorer.exe" and title in ["Program Manager", ""]:
+            return
+
+        _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
+        if found_pid in target_pids:
+            matched_hwnd = hwnd
+
+    win32gui.EnumWindows(enum_handler, None)
+    return matched_hwnd
 
 
-async def _wait_until_stopped(process_name: str, timeout_s: float) -> bool:
-    elapsed = 0.0
-    while elapsed < timeout_s:
-        if _is_process_running(process_name) is None:
-            return True
-        await asyncio.sleep(POLL_INTERVAL_S)
-        elapsed += POLL_INTERVAL_S
-    return False
+def _force_foreground_window(hwnd: int) -> bool:
+    """Alt কি প্রেস ছাড়াই নিরাপদ Win32 থ্রেড অ্যাটাচমেন্টের মাধ্যমে ফোকাস আনা।"""
+    if OS_TYPE != "windows" or not hwnd:
+        return False
+
+    import win32gui
+    import win32con
+    import win32process
+    import win32api
+
+    try:
+        _release_all_modifiers()
+
+        if win32gui.IsIconic(hwnd):
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+        else:
+            win32gui.ShowWindow(hwnd, win32con.SW_SHOW)
+
+        cur_thread = win32api.GetCurrentThreadId()
+        fg_hwnd = win32gui.GetForegroundWindow()
+        
+        if fg_hwnd and fg_hwnd != hwnd:
+            fg_thread, _ = win32process.GetWindowThreadProcessId(fg_hwnd)
+            if fg_thread != cur_thread:
+                win32process.AttachThreadInput(cur_thread, fg_thread, True)
+                win32gui.SetForegroundWindow(hwnd)
+                win32gui.BringWindowToTop(hwnd)
+                win32process.AttachThreadInput(cur_thread, fg_thread, False)
+            else:
+                win32gui.SetForegroundWindow(hwnd)
+                win32gui.BringWindowToTop(hwnd)
+        else:
+            win32gui.SetForegroundWindow(hwnd)
+            win32gui.BringWindowToTop(hwnd)
+
+        _release_all_modifiers()
+        return True
+    except Exception as e:
+        logger.warning(f"Focus adjustment failed: {e}")
+        return False
 
 
-@function_tool()
-async def open_application(
-    context: RunContext,
-    app_name: str,
-) -> str:
-    """Open a known desktop application by name.
+@function_tool(
+    name="open_website",
+    description="Open a specific website or search query directly in the default browser (e.g. YouTube, Facebook, WhatsApp, Google)."
+)
+async def open_website(context: RunContext, query_or_url: str) -> str:
+    target = query_or_url.strip()
+    if not target.startswith("http"):
+        if "." in target and " " not in target:
+            target = f"https://{target}"
+        else:
+            target = f"https://www.google.com/search?q={target.replace(' ', '+')}"
 
-    Only apps JARVIS actually recognizes can be opened (e.g. "chrome",
-    "notepad", "calculator", "spotify", "vscode", "word", "excel",
-    "discord", "vlc", "terminal", "settings"). If the name isn't
-    recognized, this tool fails instead of guessing.
+    webbrowser.open(target)
+    await asyncio.sleep(1.0)
+    
+    for b in ["chrome.exe", "msedge.exe", "firefox.exe"]:
+        h = _find_visible_hwnd_by_process(b)
+        if h:
+            set_last_opened("browser", b, h)
+            break
 
-    Args:
-        app_name: Name of the application to open
+    return f"Opened {target} in browser, sir."
 
-    Returns:
-        Confirmation that the app was verified running
-    """
+
+@function_tool(
+    name="close_tab",
+    description=(
+        "Close a specific browser tab (such as Facebook, YouTube, WhatsApp) or the currently active tab. "
+        "Use this whenever the user says 'close Facebook', 'close YouTube', 'close tab', or 'tab band karo'. "
+        "Do NOT call close_application for websites."
+    )
+)
+async def close_tab(context: RunContext, tab_name: Optional[str] = None) -> str:
+    """ব্রাউজারে ফোকাস এনে নির্দিষ্ট ব্যাকগ্রাউন্ড ট্যাব খুঁজে Ctrl+W দিয়ে বন্ধ করা।"""
+    import pyautogui
+
+    target_hwnd = None
+    for b in ["chrome.exe", "msedge.exe", "firefox.exe"]:
+        target_hwnd = _find_visible_hwnd_by_process(b)
+        if target_hwnd:
+            break
+
+    if not target_hwnd:
+        raise ToolError("Boss, koi running browser window nahi mila.")
+
+    _force_foreground_window(target_hwnd)
+    await asyncio.sleep(0.2)
+    _release_all_modifiers()
+
+    clean_name = tab_name.strip() if tab_name else ""
+    if clean_name and clean_name.lower() not in ["tab", "current", "this", "page"]:
+        pyautogui.hotkey("ctrl", "shift", "a")
+        await asyncio.sleep(0.25)
+        pyautogui.write(clean_name, interval=0.03)
+        await asyncio.sleep(0.2)
+        pyautogui.press("enter")
+        await asyncio.sleep(0.25)
+
+    _release_all_modifiers()
+    pyautogui.hotkey("ctrl", "w")
+    await asyncio.sleep(0.1)
+    _release_all_modifiers()
+
+    name = clean_name if clean_name else "active"
+    return f"Boss, {name} tab close kar diya gaya hai."
+
+
+@function_tool(
+    name="open_application",
+    description="Launch a desktop app and verify its graphical window is visible."
+)
+async def open_application(context: RunContext, app_name: str) -> str:
     key = resolve_app(app_name)
     if key is None:
-        raise ToolError(
-            f"'{app_name}' JARVIS ke registry mein nahi hai, isliye open nahi kar sakta. "
-            f"Please exact app name bolo ya registry mein add karwao."
-        )
+        raise ToolError(f"'{app_name}' registry mein nahi hai.")
 
     entry = APP_REGISTRY[key]
     launch_cmd = entry["cmd"].get(OS_TYPE)
     process_name = entry["process"].get(OS_TYPE)
 
     if not launch_cmd or not process_name:
-        raise ToolError(f"'{key}' is not supported on {OS_TYPE}.")
+        raise ToolError(f"'{key}' {OS_TYPE} par supported nahi hai.")
 
-    # already running? don't relaunch, just report + track it
-    existing = _is_process_running(process_name)
-    if existing:
-        set_last_opened(key, process_name, existing.pid)
-        return f"Boss, {key} pehle se hi chal raha hai."
+    is_explorer = (key == "explorer")
+    hwnd = _find_visible_hwnd_by_process(process_name)
 
-    logger.info(f"Launching '{key}' via: {launch_cmd}")
+    if hwnd and not is_explorer:
+        _force_foreground_window(hwnd)
+        set_last_opened(key, process_name, hwnd)
+        return f"Boss, {key} pehle se open tha, samne le aaya hoon."
 
     try:
         if OS_TYPE == "windows":
-            # no shell=True with raw LLM input - launch_cmd only ever comes
-            # from our own registry, never directly from app_name
-            subprocess.Popen(["cmd", "/c", "start", "", launch_cmd], shell=False)
-        elif OS_TYPE == "darwin":
-            subprocess.Popen(["open", "-a", launch_cmd])
+            subprocess.Popen(f"start {launch_cmd}", shell=True)
         else:
             subprocess.Popen(launch_cmd.split())
     except Exception as e:
-        logger.error(f"Launch failed for {key}: {e}")
-        raise ToolError(f"Boss, {key} launch karne mein command hi fail ho gaya: {e}")
+        raise ToolError(f"Launch command failed: {e}")
 
-    proc = await _wait_until_running(process_name, STARTUP_TIMEOUT_S)
+    elapsed = 0.0
+    while elapsed < STARTUP_TIMEOUT_S:
+        hwnd = _find_visible_hwnd_by_process(process_name)
+        if hwnd:
+            _force_foreground_window(hwnd)
+            set_last_opened(key, process_name, hwnd)
+            return f"Boss, {key} successfully open ho gaya."
+        await asyncio.sleep(POLL_INTERVAL_S)
+        elapsed += POLL_INTERVAL_S
 
-    if proc is None:
-        raise ToolError(
-            f"Boss, {key} launch command chala diya tha lekin {STARTUP_TIMEOUT_S}s mein "
-            f"process start hote hue verify nahi hua. Shayad slow load ho raha hai, ya fail ho gaya."
-        )
-
-    set_last_opened(key, process_name, proc.pid)
-    return f"Boss, {key} khul gaya aur verify ho gaya (pid {proc.pid})."
+    raise ToolError(f"Boss, {key} launch hua lekin window verify nahi hui.")
 
 
-@function_tool()
-async def close_application(
-    context: RunContext,
-    app_name: str,
-) -> str:
-    """Close a running application by name, with real verification.
-
-    Args:
-        app_name: Name of the application to close
-
-    Returns:
-        Confirmation that the app was verified closed
-    """
+@function_tool(
+    name="switch_to_application",
+    description="Switch focus to an already running app's window."
+)
+async def switch_to_application(context: RunContext, app_name: str) -> str:
     key = resolve_app(app_name)
     if key is None:
-        raise ToolError(f"'{app_name}' JARVIS ke registry mein nahi hai, close nahi kar sakta.")
+        raise ToolError(f"'{app_name}' registry mein nahi hai.")
 
-    entry = APP_REGISTRY[key]
-    process_name = entry["process"].get(OS_TYPE)
-    if not process_name:
-        raise ToolError(f"'{key}' is not supported on {OS_TYPE}.")
+    process_name = APP_REGISTRY[key]["process"].get(OS_TYPE)
+    hwnd = _find_visible_hwnd_by_process(process_name)
 
-    proc = _is_process_running(process_name)
-    if proc is None:
-        return f"Boss, {key} already band hai (running hi nahi mila)."
+    if not hwnd:
+        raise ToolError(f"Boss, {key} ka koi active window nahi mila.")
 
-    try:
-        proc.terminate()
-    except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
-        raise ToolError(f"Boss, {key} ko terminate karne ki permission nahi mili: {e}")
-
-    stopped = await _wait_until_stopped(process_name, SHUTDOWN_TIMEOUT_S)
-
-    if not stopped:
-        # escalate: graceful terminate didn't work, force kill
-        proc_retry = _is_process_running(process_name)
-        if proc_retry:
-            try:
-                proc_retry.kill()
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
-        stopped = await _wait_until_stopped(process_name, SHUTDOWN_TIMEOUT_S)
-
-    if not stopped:
-        raise ToolError(f"Boss, {key} band karne ki koshish ki lekin process abhi bhi chal raha hai.")
-
-    last = get_last_opened()
-    if last and last.registry_key == key:
-        clear_last_opened()
-
-    return f"Boss, {key} verify ho ke band ho gaya."
+    _force_foreground_window(hwnd)
+    set_last_opened(key, process_name, hwnd)
+    return f"Boss, {key} par successfully switch ho gaya."
 
 
-@function_tool()
-async def switch_to_application(
-    context: RunContext,
-    app_name: str,
-) -> str:
-    """Bring an already-running application's window to the foreground.
-
-    Args:
-        app_name: Name of the application to switch to
-
-    Returns:
-        Confirmation that focus was verified switched
-    """
+@function_tool(
+    name="close_application",
+    description=(
+        "Close an entire running desktop application (e.g. Notepad, Calculator, VS Code, or quitting the entire Chrome browser). "
+        "Do NOT use this to close a website or browser tab like YouTube, Facebook, or WhatsApp; use close_tab instead."
+    )
+)
+async def close_application(context: RunContext, app_name: str) -> str:
     key = resolve_app(app_name)
     if key is None:
-        raise ToolError(f"'{app_name}' JARVIS ke registry mein nahi hai.")
+        raise ToolError(f"'{app_name}' registry mein nahi hai.")
 
-    entry = APP_REGISTRY[key]
-    process_name = entry["process"].get(OS_TYPE)
-    proc = _is_process_running(process_name) if process_name else None
+    if key == "explorer":
+        hwnd = _find_visible_hwnd_by_process("explorer.exe")
+        if hwnd:
+            import win32gui
+            import win32con
+            win32gui.PostMessage(hwnd, win32con.WM_CLOSE, 0, 0)
+            clear_last_opened()
+            return "Boss, File Explorer window safely close kar diya gaya hai."
+        return "Boss, File Explorer ka koi khula window nahi mila."
 
-    if proc is None:
-        raise ToolError(f"Boss, {key} abhi chal hi nahi raha, switch kaise karu.")
+    process_name = APP_REGISTRY[key]["process"].get(OS_TYPE)
 
     if OS_TYPE == "windows":
-        import win32gui
-        import win32con
-        import win32process
-
-        matched_hwnd = None
-
-        def enum_handler(hwnd, _results):
-            nonlocal matched_hwnd
-            if not win32gui.IsWindowVisible(hwnd):
-                return
-            _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
-            if found_pid == proc.pid:
-                matched_hwnd = hwnd
-
-        win32gui.EnumWindows(enum_handler, None)
-
-        if matched_hwnd is None:
-            raise ToolError(f"Boss, {key} process chal raha hai lekin koi visible window nahi mila.")
-
-        win32gui.ShowWindow(matched_hwnd, win32con.SW_RESTORE)
-        win32gui.SetForegroundWindow(matched_hwnd)
-
-        # verify
-        await asyncio.sleep(0.2)
-        if win32gui.GetForegroundWindow() != matched_hwnd:
-            raise ToolError(f"Boss, {key} par switch try kiya lekin foreground verify nahi hua.")
-
-        set_last_opened(key, process_name, proc.pid)
-        return f"Boss, {key} par switch ho gaya, verified."
-
-    elif OS_TYPE == "darwin":
-        launch_cmd = entry["cmd"].get("darwin")
-        result = subprocess.run(
-            ["osascript", "-e", f'tell application "{launch_cmd}" to activate'],
-            capture_output=True, text=True,
-        )
-        if result.returncode != 0:
-            raise ToolError(f"Boss, {key} activate karne mein fail: {result.stderr.strip()}")
-        set_last_opened(key, process_name, proc.pid)
-        return f"Boss, {key} par switch ho gaya."
-
+        subprocess.run(["taskkill", "/F", "/IM", process_name, "/T"], capture_output=True)
     else:
-        launch_cmd = entry["cmd"].get("linux")
-        result = subprocess.run(["wmctrl", "-xa", launch_cmd], capture_output=True, text=True)
-        if result.returncode != 0:
-            raise ToolError(f"Boss, {key} par switch fail hua (wmctrl): {result.stderr.strip()}")
-        set_last_opened(key, process_name, proc.pid)
-        return f"Boss, {key} par switch ho gaya."
+        for pid in _get_all_matching_pids(process_name):
+            try:
+                psutil.Process(pid).kill()
+            except:
+                pass
+
+    clear_last_opened()
+    return f"Boss, {key} application poori tarah band kar diya gaya hai."

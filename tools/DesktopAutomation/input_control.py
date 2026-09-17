@@ -4,94 +4,60 @@ import platform
 from typing import Optional
 
 from livekit.agents import function_tool, RunContext, ToolError
-
 from .desktop_state import get_last_opened
+from .apps import _find_visible_hwnd_by_process, _force_foreground_window
 
 logger = logging.getLogger("desktop_automation")
 OS_TYPE = platform.system().lower()
 
 
-def _foreground_matches_expected(expected_pid: int) -> bool:
-    """Check the actual OS foreground window belongs to the expected process."""
-    if OS_TYPE != "windows":
-        # extend with NSWorkspace (mac) / wmctrl+xprop (linux) if needed
+def _ensure_active_focus(last) -> bool:
+    """Ensure target window is 100% focused before any keystroke."""
+    if OS_TYPE != "windows" or not last.hwnd:
         return True
 
     import win32gui
-    import win32process
+    fg_hwnd = win32gui.GetForegroundWindow()
 
-    hwnd = win32gui.GetForegroundWindow()
-    if not hwnd:
+    if fg_hwnd != last.hwnd:
+        valid_hwnd = _find_visible_hwnd_by_process(last.process_name)
+        if valid_hwnd:
+            _force_foreground_window(valid_hwnd)
+            last.hwnd = valid_hwnd
+            return True
         return False
-
-    _, fg_pid = win32process.GetWindowThreadProcessId(hwnd)
-    return fg_pid == expected_pid
+    return True
 
 
-@function_tool()
-async def type_text(
-    context: RunContext,
-    text: str,
-) -> str:
-    """Type text into whichever application JARVIS most recently opened
-    or switched to. Refuses to type if that application isn't currently
-    the focused window, instead of typing into the wrong place.
-
-    Args:
-        text: The text to type
-
-    Returns:
-        Confirmation that text was typed into the verified app
-    """
+@function_tool(description="Type text into the verified active application.")
+async def type_text(context: RunContext, text: str) -> str:
     last = get_last_opened()
     if last is None:
-        raise ToolError(
-            "Boss, mujhe pata nahi kis app mein type karna hai — pehle koi app open ya switch karo."
-        )
+        raise ToolError("Boss, pehle koi application open ya switch karo.")
 
-    if not _foreground_matches_expected(last.pid):
-        raise ToolError(
-            f"Boss, {last.registry_key} abhi foreground mein nahi hai, isliye type nahi kiya — "
-            f"kahin galat window mein type ho jaata."
-        )
+    if not _ensure_active_focus(last):
+        raise ToolError(f"Boss, {last.registry_key} foreground mein nahi aa saka.")
 
     import pyautogui
-
-    logger.info(f"Typing into '{last.registry_key}' (pid {last.pid}): {text[:50]}...")
-    pyautogui.write(text, interval=0.05)
-
-    return f"Boss, {last.registry_key} mein type kar diya, verified focus ke saath."
+    await asyncio.sleep(0.15)
+    pyautogui.write(text, interval=0.03)
+    return f"Boss, {last.registry_key} mein type kar diya."
 
 
-@function_tool()
-async def type_text_unicode(
-    context: RunContext,
-    text: str,
-) -> str:
-    """Type text that includes non-ASCII/Unicode characters (e.g. Hindi,
-    Bengali) via clipboard paste, with the same foreground-app guard as
-    type_text.
-
-    Args:
-        text: The text to type (can include non-Latin scripts)
-
-    Returns:
-        Confirmation that text was typed into the verified app
-    """
+@function_tool(description="Type Unicode or non-ASCII text (Bengali, Hindi, symbols) via clipboard paste.")
+async def type_text_unicode(context: RunContext, text: str) -> str:
     last = get_last_opened()
     if last is None:
-        raise ToolError("Boss, pehle koi app open ya switch karo, phir type karunga.")
+        raise ToolError("Boss, pehle koi application open ya switch karo.")
 
-    if not _foreground_matches_expected(last.pid):
-        raise ToolError(
-            f"Boss, {last.registry_key} foreground mein nahi hai, isliye paste nahi kiya."
-        )
+    if not _ensure_active_focus(last):
+        raise ToolError(f"Boss, {last.registry_key} foreground mein nahi aa saka.")
 
     import pyautogui
     import pyperclip
 
     pyperclip.copy(text)
-    await asyncio.sleep(0.1)
+    await asyncio.sleep(0.15)
 
     if OS_TYPE == "darwin":
         pyautogui.hotkey("command", "v")
@@ -101,36 +67,24 @@ async def type_text_unicode(
     return f"Boss, {last.registry_key} mein Unicode text paste kar diya."
 
 
-@function_tool()
-async def press_key(
-    context: RunContext,
-    key: str,
-    modifier: Optional[str] = None,
-) -> str:
-    """Press a keyboard key or key combination in the currently tracked app.
-
-    Args:
-        key: Key to press (e.g. "enter", "tab", "f5", "backspace")
-        modifier: Optional modifier (e.g. "ctrl", "alt", "shift", "cmd")
-
-    Returns:
-        Confirmation the key was pressed in the verified app
-    """
+@function_tool(description="Press a keyboard key (enter, tab, esc) in active application.")
+async def press_key(context: RunContext, key: str, modifier: Optional[str] = None) -> str:
     last = get_last_opened()
     if last is None:
-        raise ToolError("Boss, pehle koi app open ya switch karo.")
+        raise ToolError("Boss, pehle koi app focus karo.")
 
-    if not _foreground_matches_expected(last.pid):
-        raise ToolError(f"Boss, {last.registry_key} foreground mein nahi hai, key press skip kiya.")
+    if not _ensure_active_focus(last):
+        raise ToolError(f"Boss, {last.registry_key} focus nahi ho paya.")
 
     import pyautogui
+    await asyncio.sleep(0.1)
 
     if modifier:
         if modifier.lower() == "cmd" and OS_TYPE == "darwin":
             modifier = "command"
-        pyautogui.hotkey(modifier, key)
+        pyautogui.hotkey(modifier.lower(), key.lower())
     else:
-        pyautogui.press(key)
+        pyautogui.press(key.lower())
 
     combo = f"{modifier}+{key}" if modifier else key
     return f"Boss, {last.registry_key} mein {combo} press kar diya."

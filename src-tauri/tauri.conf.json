@@ -1,0 +1,74 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "jarvis",
+  "version": "0.1.0",
+  "identifier": "com.jarvis.desktop",
+  "build": {
+    "frontendDist": "../frontend",
+    "devUrl": "http://localhost:8080"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "chat",
+        "title": "JARVIS Chat",
+        "url": "widgets/chat/chat.html",
+        "x": 50,
+        "y": 50,
+        "width": 380,
+        "height": 250,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": false,
+        "alwaysOnTop": false,
+        "transparent": true,
+        "visible": true
+      },
+      {
+        "label": "core",
+        "title": "JARVIS Core",
+        "url": "widgets/core/core.html",
+        "x": 450,
+        "y": 50,
+        "width": 400,
+        "height": 500,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": false,
+        "alwaysOnTop": false,
+        "transparent": true,
+        "visible": true
+      },
+      {
+        "label": "system",
+        "title": "JARVIS System",
+        "url": "widgets/system/system.html",
+        "x": 870,
+        "y": 50,
+        "width": 350,
+        "height": 300,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": false,
+        "alwaysOnTop": false,
+        "transparent": true,
+        "visible": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

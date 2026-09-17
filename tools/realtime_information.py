@@ -17,7 +17,6 @@ async def get_realtime_information(
     query: str,
 ) -> dict:
 
-    # Immediate acknowledgement before starting web search
     if SESSION_MODE == "pipeline":
         await context.session.say(
             "Thik hai sir, abhi search karta hoon.",

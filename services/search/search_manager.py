@@ -5,9 +5,7 @@ from .tavily import search_tavily
 from .serper import search_serper
 from .searxng import search_searxng
 
-
 logger = logging.getLogger(__name__)
-
 
 SEARCH_PROVIDERS = [
     ("Tavily", search_tavily),
