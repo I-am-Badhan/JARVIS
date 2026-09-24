@@ -5,28 +5,32 @@ from typing import Optional
 
 from livekit.agents import function_tool, RunContext, ToolError
 from .desktop_state import get_last_opened
-from .apps import _find_visible_hwnd_by_process, _force_foreground_window
+from .apps import _get_all_visible_hwnds, _force_foreground_window
 
 logger = logging.getLogger("desktop_automation")
 OS_TYPE = platform.system().lower()
 
 
 def _ensure_active_focus(last) -> bool:
-    """Ensure target window is 100% focused before any keystroke."""
-    if OS_TYPE != "windows" or not last.hwnd:
+    if OS_TYPE != "windows" or not last or not last.hwnd:
         return True
 
     import win32gui
     fg_hwnd = win32gui.GetForegroundWindow()
 
-    if fg_hwnd != last.hwnd:
-        valid_hwnd = _find_visible_hwnd_by_process(last.process_name)
-        if valid_hwnd:
-            _force_foreground_window(valid_hwnd)
-            last.hwnd = valid_hwnd
-            return True
-        return False
-    return True
+    # উইন্ডো এখনো ফোকাসে থাকলে সরাসরি অনুমতি দেওয়া
+    if fg_hwnd == last.hwnd:
+        return True
+
+    # যদি ডায়ালগ ওপেন হয়ে থাকে বা HWND বদলে যায়, পুনরায় সক্রিয় উইন্ডো বের করা
+    hwnds = _get_all_visible_hwnds(last.process_name, getattr(last, "registry_key", ""))
+    if hwnds:
+        valid_hwnd = hwnds[0]
+        _force_foreground_window(valid_hwnd)
+        last.hwnd = valid_hwnd
+        return True
+
+    return False
 
 
 @function_tool(description="Type text into the verified active application.")

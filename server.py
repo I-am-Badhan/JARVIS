@@ -88,10 +88,11 @@ async def jarvis_session(ctx: agents.JobContext):
         except Exception as e:
             logger.error(f"Error forwarding conversation item: {e}")
 
-    greeting_prompt = build_greeting_prompt(
-        GENERATE_REPLY
-    )
-
-    await session.generate_reply(
-        instructions=greeting_prompt
-    )
+    await asyncio.sleep(1.2)
+    try:
+        greeting_prompt = build_greeting_prompt(GENERATE_REPLY)
+        handle = session.generate_reply(instructions=greeting_prompt)
+        if asyncio.iscoroutine(handle) or hasattr(handle, "__await__"):
+            await handle
+    except Exception as e:
+        logger.warning(f"Initial greeting deferred: {e}")
