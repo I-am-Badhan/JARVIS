@@ -1,0 +1,102 @@
+JARVIS/
+├── .env.local
+├── .git
+├── .gitignore
+├── .python-version
+├── .venv
+├── README.md
+├── __pycache__
+├── agent.py
+├── config
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── api_key_config.py
+│   ├── date_time_config.py
+│   ├── interruption_config.py
+│   ├── livekit_config.py
+│   ├── llm_config.py
+│   ├── realtime_config.py
+│   ├── search_config.py
+│   ├── session_config.py
+│   ├── stt_config.py
+│   ├── system_config.py
+│   └── tts_config.py
+├── frontend
+│   ├── shared
+│   │   ├── api.js
+│   │   ├── event-bus.js
+│   │   ├── jarvis-widget.js
+│   │   ├── theme.css
+│   │   ├── window-factory.js
+│   │   └── window-manager.js
+│   └── widgets
+│       ├── chat
+│       │   ├── chat.html
+│       │   └── chat.js
+│       ├── core
+│       │   ├── core.html
+│       │   └── core.js
+│       ├── music
+│       │   ├── music.css
+│       │   ├── music.html
+│       │   └── music.js
+│       └── system
+│           ├── system.html
+│           └── system.js
+├── generate_tree.py
+├── main.py
+├── node_modules
+├── package-lock.json
+├── package.json
+├── prompts
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── generate_reply_prompt.py
+│   └── system_prompt.py
+├── pyproject.toml
+├── server.py
+├── services
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── llm_service.py
+│   ├── music_manager.py
+│   ├── realtime_llm_service.py
+│   ├── search
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   ├── exa.py
+│   │   ├── search_manager.py
+│   │   ├── searxng.py
+│   │   ├── serper.py
+│   │   └── tavily.py
+│   ├── stt_service.py
+│   └── tts
+│       ├── __init__.py
+│       ├── __pycache__
+│       ├── edge_tts_service.py
+│       └── tts_service.py
+├── session.py
+├── src-tauri
+├── test.py
+├── tools
+│   ├── DesktopAutomation
+│   │   ├── __pycache__
+│   │   ├── apps.py
+│   │   ├── browser_automation.py
+│   │   ├── desktop_registry.py
+│   │   ├── desktop_state.py
+│   │   ├── input_control.py
+│   │   ├── system_control.py
+│   │   └── ui_element_control.py
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── date_time.py
+│   ├── music_tools.py
+│   └── realtime_information.py
+├── tree.txt
+├── utils
+│   ├── __pycache__
+│   ├── greet.py
+│   └── interruption.py
+├── uv.lock
+└── web_server.py

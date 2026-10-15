@@ -15,15 +15,23 @@ dependencies = [
     "livekit-plugins-sarvam>=1.7.0",
     "livekit-plugins-silero>=1.7.0",
     "livekit-plugins-turn-detector>=1.7.0",
+    "numpy>=2.5.2",
+    "onnxruntime>=1.29.0",
+    "openwakeword>=0.4.0",
     "playwright>=1.63.0",
     "psutil>=7.2.2",
     "pyautogui>=0.9.54",
+    "pycaw>=20260921",
     "pyperclip>=1.11.0",
     "python-dotenv>=1.2.3",
     "pywin32>=312",
+    "screen-brightness-control>=0.27.2",
+    "sounddevice>=0.5.6",
     "tzdata>=2026.3",
     "uiautomation>=2.0.29",
     "uvicorn>=0.52.4",
+    "vosk>=0.3.45",
+    "yt-dlp>=2026.8.19",
 ]
 
 [dependency-groups]

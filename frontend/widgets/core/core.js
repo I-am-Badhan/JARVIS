@@ -1,4 +1,3 @@
-// রিয়েল-টাইম সেকেন্ড সহ ঘড়ি
 function initClock() {
   const timeEl = document.getElementById('core-time');
   const dateEl = document.getElementById('core-date');

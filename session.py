@@ -1,15 +1,24 @@
-from livekit.agents import AgentSession
-from livekit.plugins import silero
 
-from services.stt_service import *
-from services.llm_service import *
-from services.tts.tts_service import *
-from utils.interruption import *
-from services.realtime_llm_service import *
+from livekit.agents import AgentSession
+
+from services.realtime_llm_service import get_realtime_llm
+
 
 def create_session(mode: str) -> AgentSession:
+    mode = mode.strip().lower()
+
+    if mode == "realtime":
+        return AgentSession(
+            llm=get_realtime_llm(),
+        )
 
     if mode == "pipeline":
+        from livekit.plugins import silero
+
+        from services.stt_service import get_stt
+        from services.llm_service import get_groq_llm
+        from services.tts.tts_service import get_cartesia_tts
+        from utils.interruption import get_turn_handling
 
         return AgentSession(
             stt=get_stt(),
@@ -19,13 +28,4 @@ def create_session(mode: str) -> AgentSession:
             turn_handling=get_turn_handling(),
         )
 
-    elif mode == "realtime":
-
-        return AgentSession(
-            llm=get_realtime_llm(),
-        )
-
-    else:
-        raise ValueError(
-            f"Unknown JARVIS mode: {mode}"
-        )
+    raise ValueError(f"Unknown JARVIS mode: {mode}")

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JARVIS Music</title>
+  <link rel="stylesheet" href="../../shared/theme.css">
+  <link rel="stylesheet" href="music.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <!-- Standard Jarvis Widget Frame with 12px Rounded Corners -->
+  <jarvis-widget title="JARVIS MUSIC" icon="🎵">
+    <div class="music-core-layout">
+      <!-- Left: Reactor Rings & Album Cover -->
+      <div class="album-reactor-wrap">
+        <div class="hud-ring ring-outer"></div>
+        <div class="hud-ring ring-mid"></div>
+        <div class="hud-ring ring-inner-arc"></div>
+
+        <div class="album-art-card">
+          <!-- Active IFrame on-screen (Prevents WebView background suspension) -->
+          <iframe id="ytIframe" src="" allow="autoplay; encrypted-media" frameborder="0"></iframe>
+          <img id="albumArt" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600" alt="Cover">
+          <div class="art-overlay-glass"></div>
+        </div>
+      </div>
+
+      <!-- Right: Metadata, Waveform & Controls -->
+      <div class="playback-details-wrap">
+        <div class="title-row">
+          <div class="meta-texts">
+            <h1 id="trackTitle">Ready to Play</h1>
+            <p id="trackArtist">J.A.R.V.I.S. Audio Subsystem</p>
+          </div>
+          <div class="meta-actions">
+            <button class="action-icon-btn" id="likeBtn" onclick="toggleLike()" title="Favorite"><i class="fa-regular fa-heart"></i></button>
+          </div>
+        </div>
+
+        <!-- Waveform Spectrum Visualizer -->
+        <div class="waveform-box">
+          <canvas id="waveformCanvas"></canvas>
+        </div>
+
+        <!-- Seek Timeline -->
+        <div class="timeline-row">
+          <div class="seek-track" id="seekTrack" onclick="handleSeek(event)">
+            <div class="seek-fill" id="seekFill">
+              <div class="seek-thumb"></div>
+            </div>
+          </div>
+          <div class="time-readout">
+            <span id="currentTime">0:00</span>
+            <span id="totalDuration">0:00</span>
+          </div>
+        </div>
+
+        <!-- Center Controls Deck -->
+        <div class="button-deck">
+          <button class="deck-btn" id="shuffleBtn" onclick="toggleShuffle()" title="Shuffle"><i class="fa-solid fa-shuffle"></i></button>
+          <button class="deck-btn" onclick="seekRelative(-15)" title="Back 15s"><i class="fa-solid fa-backward-step"></i></button>
+          
+          <div class="play-halo-anchor">
+            <div class="play-halo-ring"></div>
+            <button class="halo-play-btn" id="masterPlayBtn" onclick="togglePlayState()" title="Play/Pause">
+              <i class="fa-solid fa-play"></i>
+            </button>
+          </div>
+
+          <button class="deck-btn" onclick="seekRelative(15)" title="Forward 15s"><i class="fa-solid fa-forward-step"></i></button>
+          <button class="deck-btn" id="repeatBtn" onclick="toggleRepeat()" title="Repeat"><i class="fa-solid fa-repeat"></i></button>
+        </div>
+
+        <!-- Volume Bar -->
+        <div class="volume-row">
+          <i class="fa-solid fa-volume-low vol-glyph"></i>
+          <div class="volume-track" id="volumeTrack" onclick="handleVolume(event)">
+            <div class="volume-fill" id="volumeFill">
+              <div class="volume-thumb"></div>
+            </div>
+          </div>
+          <i class="fa-solid fa-volume-high vol-glyph"></i>
+        </div>
+      </div>
+    </div>
+  </jarvis-widget>
+
+  <!-- Local Architecture Scripts -->
+  <script src="../../shared/jarvis-widget.js"></script>
+  <script src="../../shared/window-manager.js"></script>
+  <script src="../../shared/event-bus.js"></script>
+  <script src="../../shared/window-factory.js"></script>
+  <script src="../../shared/api.js"></script>
+  <script src="music.js"></script>
+</body>
+</html>

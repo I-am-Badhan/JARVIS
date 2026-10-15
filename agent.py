@@ -39,7 +39,26 @@ from tools.DesktopAutomation.browser_automation import (
     web_go_back,
     web_go_forward,
     web_reload_page,
+    youtube_account_action, 
 )
+
+from tools.DesktopAutomation.system_control import (
+    set_system_volume,
+    change_system_volume,
+    mute_system_volume,
+    get_system_volume,
+    set_screen_brightness,
+    change_screen_brightness,
+    turn_off_display,
+    lock_workstation,
+    sleep_computer,
+    shutdown_or_restart_pc,
+    cancel_pc_shutdown,
+    system_media_control,
+    get_hardware_metrics,
+)
+
+from tools.music_tools import play_music_in_ui, control_music_player
 
 class Jarvis(Agent):
 
@@ -77,7 +96,21 @@ class Jarvis(Agent):
                 web_go_back,
                 web_go_forward,
                 web_reload_page,
+                youtube_account_action,
+                set_system_volume,
+                change_system_volume,
+                mute_system_volume,
+                get_system_volume,
+                set_screen_brightness,
+                change_screen_brightness,
+                turn_off_display,
+                lock_workstation,
+                sleep_computer,
+                shutdown_or_restart_pc,
+                cancel_pc_shutdown,
+                system_media_control,
+                get_hardware_metrics,
+                play_music_in_ui,
+                control_music_player,
             ]
         )
-
-

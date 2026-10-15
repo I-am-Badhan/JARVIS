@@ -48,6 +48,33 @@ WMO_WEATHER_CODES = {
     71: "Snow", 80: "Rain Showers", 95: "Thunderstorm"
 }
 
+# -------------------------------------------------------------
+# Zero-Failure Music State Hub
+# -------------------------------------------------------------
+current_music_state = {
+    "action": "NONE",
+    "id": "",
+    "title": "Ready to Play",
+    "artist": "J.A.R.V.I.S. Audio Subsystem",
+    "thumbnail": "",
+    "updated_at": 0
+}
+
+@app.post("/api/music/command")
+async def receive_music_command(payload: dict):
+    global current_music_state
+    current_music_state = {
+        **payload,
+        "updated_at": time.time()
+    }
+    print(f"[MUSIC HUB] State updated -> {current_music_state.get('title')}")
+    return {"status": "dispatched", "title": current_music_state.get("title")}
+
+@app.get("/api/music/state")
+async def get_music_state():
+    return current_music_state
+
+
 @app.get("/api/token")
 async def get_token():
     token = (
@@ -66,7 +93,7 @@ async def get_token():
                     agent_name=""
                 )
             )
-    except Exception as e:
+    except Exception:
         pass
 
     return {
@@ -133,7 +160,7 @@ async def get_weather():
         weather_cache["timestamp"] = now
         return result
 
-    except Exception as e:
+    except Exception:
         return {
             "city": "KHARAGPUR, IN",
             "temp": "28°C",

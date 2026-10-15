@@ -54,6 +54,21 @@
         "alwaysOnTop": false,
         "transparent": true,
         "visible": true
+      },
+      {
+        "label": "music",
+        "title": "JARVIS Music",
+        "url": "widgets/music/music.html",
+        "x": 20,
+        "y": 400,
+        "width": 400,
+        "height": 250,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": false,
+        "alwaysOnTop": false,
+        "transparent": true,
+        "visible": true
       }
     ],
     "security": {
