@@ -1,0 +1,430 @@
+INFO:jarvis.main:Starting JARVIS LiveKit agent...
+DEBUG:asyncio:Using proactor: IocpProactor
+    20:53:12.868 DEBUG    asyncio            Using proactor: IocpProactor  
+DEBUG:livekit.agents:no system trust store found, setting SSL_CERT_FILE to the certifi bundle
+    20:53:12.883 DEBUG    livekit.agents     no system trust store found,      
+                                             setting SSL_CERT_FILE to the      
+                                             certifi bundle                    
+INFO:livekit.agents:starting worker
+                 INFO     livekit.agents     starting worker  
+                                         {"version": "1.7.0", "rtc-version": 
+"1.1.14"}
+INFO:livekit.agents:plugin registered
+                 INFO     livekit.agents     plugin registered  
+                                         {"plugin": "livekit.plugins.google", 
+"version": "1.7.0"}
+INFO:livekit.agents:HTTP server listening on :52136
+    20:53:12.899 INFO     livekit.agents     HTTP server listening on :52136  
+D:\JARVIS\.venv\Lib\site-packages\jwt\api_jwt.py:147: InsecureKeyLengthWarning: The HMAC key is 6 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+  return self._jws.encode(
+WARNING:livekit.agents:no warmed process available for job, waiting for one to be created
+    20:53:13.658 WARNING  livekit.agents     no warmed process available for   
+                                             job, waiting for one to be        
+                                             created                           
+                                         {"job_id": "job-2f4c26c495c2"}
+INFO:livekit.agents:initializing job runner
+    20:53:13.667 INFO     livekit.agents     initializing job runner  
+                                         {"tid": 9128}
+INFO:livekit.agents:job runner initialized
+DEBUG:asyncio:Using proactor: IocpProactor
+    20:53:13.673 INFO     livekit.agents     job runner initialized  
+                                         {"tid": 9128, "elapsed_time": 0.0}
+    20:53:13.674 DEBUG    asyncio            Using proactor: IocpProactor  
+INFO:jarvis.server:[STARTUP] Job entry | 0.000s
+    20:53:13.687 INFO     jarvis.server      [STARTUP] Job entry | 0.000s  
+INFO:jarvis.server:[STARTUP] Session object created: mode=realtime | 0.012s
+    20:53:13.700 INFO     jarvis.server      [STARTUP] Session object          
+                                             created: mode=realtime | 0.012s   
+DEBUG:livekit.agents:input stream attached
+    20:53:13.709 DEBUG    livekit.agents     input stream attached  
+                                         {"participant": null, "source": 
+"SOURCE_UNKNOWN", "accepted_sources": ["SOURCE_MICROPHONE"]}
+DEBUG:livekit.agents:created new realtime session for activity, id=<livekit.plugins.google.realtime.realtime_api.RealtimeSession object at 0x000001340F46C650>
+    20:53:15.616 DEBUG    livekit.agents     created new realtime session for  
+                                             activity,                         
+                                             id=<livekit.plugins.google.real…  
+                                             object at 0x000001340F46C650>     
+DEBUG:livekit.plugins.google:connecting to Gemini Realtime API...
+    20:53:15.823 DEBUG    livekit.…ns.google connecting to Gemini Realtime     
+                                             API...                            
+DEBUG:livekit.agents:using audio io: `RoomIO` -> `AgentSession` -> `TranscriptSynchronizer` -> `AudioSinkProxy` -> `RoomIO`
+    20:53:15.847 DEBUG    livekit.agents     using audio io: `RoomIO` ->       
+                                             `AgentSession` ->                 
+                                             `TranscriptSynchronizer` ->       
+                                             `AudioSinkProxy` -> `RoomIO`      
+DEBUG:livekit.agents:using transcript io: `AgentSession` -> `TranscriptSynchronizer` -> `RoomIO`
+    20:53:15.853 DEBUG    livekit.agents     using transcript io:              
+                                             `AgentSession` ->                 
+                                             `TranscriptSynchronizer` ->       
+                                             `RoomIO`                          
+INFO:jarvis.server:[STARTUP] session.start completed; waiting for wake-triggered UI connection | 2.171s
+    20:53:15.858 INFO     jarvis.server      [STARTUP] session.start           
+                                             completed; waiting for            
+                                             wake-triggered UI connection |    
+                                             2.171s                            
+INFO:jarvis.server:UI participant connected: commander
+    20:54:25.539 INFO     jarvis.server      UI participant connected:         
+                                             commander                         
+INFO:jarvis.server:[STARTUP] UI connected; sending greeting | 71.900s
+    20:54:25.588 INFO     jarvis.server      [STARTUP] UI connected; sending   
+                                             greeting | 71.900s                
+DEBUG:livekit.agents:start reading stream
+    20:54:25.775 DEBUG    livekit.agents     start reading stream  
+                                         {"participant": "commander", "source":
+"SOURCE_MICROPHONE"}
+WARNING:livekit.plugins.google:received server content but no active generation.
+    20:54:26.237 WARNING  livekit.…ns.google received server content but no    
+                                             active generation.                
+DEBUG:livekit.agents:aec warmup active, disabling interruptions for 3.00s
+    20:54:26.773 DEBUG    livekit.agents     aec warmup active, disabling      
+                                             interruptions for 3.00s           
+DEBUG:livekit.agents:aec warmup expired, re-enabling interruptions
+    20:54:29.768 DEBUG    livekit.agents     aec warmup expired, re-enabling   
+                                             interruptions                     
+DEBUG:livekit.agents:conversation_item_added
+    20:54:30.177 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "assistant", "lk.pii.text": 
+"Welcome back, sir. Good evening. Aaj ka plan kya hai?"}
+INFO:jarvis.server:[STARTUP] Wake-triggered greeting completed | 76.504s
+    20:54:30.192 INFO     jarvis.server      [STARTUP] Wake-triggered          
+                                             greeting completed | 76.504s      
+DEBUG:livekit.agents:conversation_item_added
+    20:54:50.881 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "user", "lk.pii.text": 
+"Jarvis to tell me today's tithi."}
+DEBUG:livekit.agents:executing tool
+    20:54:50.918 DEBUG    livekit.agents     executing tool  
+                                         {"function": 
+"get_realtime_information", "lk.pii.arguments": "{\"query\": \"today's tithi 
+October 17 2026\"}", "speech_id": "speech_5eaf5a8ec514"}
+INFO:services.search.search_manager:Trying search provider: Tavily
+    20:54:50.932 INFO     services…h_manager Trying search provider: Tavily  
+DEBUG:livekit.agents:conversation_item_added
+    20:54:53.250 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "assistant", "lk.pii.text": 
+"Let me check the calendar for you, sir."}
+INFO:services.search.search_manager:Search successful with provider: Tavily
+    20:54:54.500 INFO     services…h_manager Search successful with provider:  
+                                             Tavily                            
+DEBUG:livekit.agents:tools execution completed
+    20:54:54.511 DEBUG    livekit.agents     tools execution completed  
+                                         {"speech_id": "speech_5eaf5a8ec514"}
+DEBUG:livekit.agents:conversation_item_added
+    20:54:57.868 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "assistant", "lk.pii.text": 
+"Sir, aaj Shukla Paksha Saptami hai."}
+INFO:jarvis.server:UI participant disconnected: commander; greeting re-armed
+    20:55:28.011 INFO     jarvis.server      UI participant disconnected:      
+                                             commander; greeting re-armed      
+DEBUG:livekit.agents:stream closed
+    20:55:28.017 DEBUG    livekit.agents     stream closed  
+                                         {"participant": "commander", "source":
+"SOURCE_MICROPHONE"}
+ERROR:livekit.plugins.google:error in receive task: 1006 None. abnormal closure [internal]
+TimeoutError: timed out while closing connection
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 537, in _receive
+    raw_response = await self._ws.recv(decode=False)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\JARVIS\.venv\Lib\site-packages\websockets\asyncio\connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: sent 1011 (internal error) keepalive ping timeout; no close frame received
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\JARVIS\.venv\Lib\site-packages\livekit\plugins\google\realtime\realtime_api.py", line 1105, in _recv_task
+    async for response in session.receive():
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 456, in receive
+    while result := await self._receive():
+                    ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 547, in _receive
+    errors.APIError.raise_error(code, reason, None)
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\errors.py", line 206, in raise_error
+    raise cls(status_code, response_json, response)
+google.genai.errors.APIError: 1006 None. abnormal closure [internal]
+    20:56:06.615 ERROR    livekit.…ns.google error in receive task: 1006       
+                                             None. abnormal closure            
+                                             [internal]                        
+TimeoutError: timed out while closing connection
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 537, in 
+_receive
+    raw_response = await self._ws.recv(decode=False)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\JARVIS\.venv\Lib\site-packages\websockets\asyncio\connection.py", 
+line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: sent 1011 (internal error) 
+keepalive ping timeout; no close frame received
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File 
+"D:\JARVIS\.venv\Lib\site-packages\livekit\plugins\google\realtime\realtime_api
+.py", line 1105, in _recv_task
+    async for response in session.receive():
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 456, in 
+receive
+    while result := await self._receive():
+                    ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 547, in 
+_receive
+    errors.APIError.raise_error(code, reason, None)
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\errors.py", line 206, in
+raise_error
+    raise cls(status_code, response_json, response)
+google.genai.errors.APIError: 1006 None. abnormal closure [internal]
+DEBUG:livekit.plugins.google:send task finished.
+    20:56:06.717 DEBUG    livekit.…ns.google send task finished.  
+ERROR:livekit.plugins.google:Gemini Realtime API error: 1006 None. abnormal closure [internal]
+TimeoutError: timed out while closing connection
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 537, in _receive
+    raw_response = await self._ws.recv(decode=False)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\JARVIS\.venv\Lib\site-packages\websockets\asyncio\connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: sent 1011 (internal error) keepalive ping timeout; no close frame received
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\JARVIS\.venv\Lib\site-packages\livekit\plugins\google\realtime\realtime_api.py", line 985, in _main_task
+    raise err
+  File "D:\JARVIS\.venv\Lib\site-packages\livekit\plugins\google\realtime\realtime_api.py", line 1105, in _recv_task
+    async for response in session.receive():
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 456, in receive
+    while result := await self._receive():
+                    ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 547, in _receive
+    errors.APIError.raise_error(code, reason, None)
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\errors.py", line 206, in raise_error
+    raise cls(status_code, response_json, response)
+google.genai.errors.APIError: 1006 None. abnormal closure [internal]
+    20:56:06.719 ERROR    livekit.…ns.google Gemini Realtime API error: 1006   
+                                             None. abnormal closure            
+                                             [internal]                        
+TimeoutError: timed out while closing connection
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 537, in 
+_receive
+    raw_response = await self._ws.recv(decode=False)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\JARVIS\.venv\Lib\site-packages\websockets\asyncio\connection.py", 
+line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: sent 1011 (internal error) 
+keepalive ping timeout; no close frame received
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File 
+"D:\JARVIS\.venv\Lib\site-packages\livekit\plugins\google\realtime\realtime_api
+.py", line 985, in _main_task
+    raise err
+  File 
+"D:\JARVIS\.venv\Lib\site-packages\livekit\plugins\google\realtime\realtime_api
+.py", line 1105, in _recv_task
+    async for response in session.receive():
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 456, in 
+receive
+    while result := await self._receive():
+                    ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 547, in 
+_receive
+    errors.APIError.raise_error(code, reason, None)
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\errors.py", line 206, in
+raise_error
+    raise cls(status_code, response_json, response)
+google.genai.errors.APIError: 1006 None. abnormal closure [internal]
+WARNING:livekit.plugins.google:Gemini Realtime API connection failed, retrying in 0.1s
+TimeoutError: timed out while closing connection
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 537, in _receive
+    raw_response = await self._ws.recv(decode=False)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\JARVIS\.venv\Lib\site-packages\websockets\asyncio\connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: sent 1011 (internal error) keepalive ping timeout; no close frame received
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\JARVIS\.venv\Lib\site-packages\livekit\plugins\google\realtime\realtime_api.py", line 985, in _main_task
+    raise err
+  File "D:\JARVIS\.venv\Lib\site-packages\livekit\plugins\google\realtime\realtime_api.py", line 1105, in _recv_task
+    async for response in session.receive():
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 456, in receive
+    while result := await self._receive():
+                    ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 547, in _receive
+    errors.APIError.raise_error(code, reason, None)
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\errors.py", line 206, in raise_error
+    raise cls(status_code, response_json, response)
+google.genai.errors.APIError: 1006 None. abnormal closure [internal]
+    20:56:06.728 WARNING  livekit.…ns.google Gemini Realtime API connection    
+                                             failed, retrying in 0.1s          
+                                           {"attempt": 0, "max_retries": 3}
+TimeoutError: timed out while closing connection
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 537, in 
+_receive
+    raw_response = await self._ws.recv(decode=False)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\JARVIS\.venv\Lib\site-packages\websockets\asyncio\connection.py", 
+line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: sent 1011 (internal error) 
+keepalive ping timeout; no close frame received
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File 
+"D:\JARVIS\.venv\Lib\site-packages\livekit\plugins\google\realtime\realtime_api
+.py", line 985, in _main_task
+    raise err
+  File 
+"D:\JARVIS\.venv\Lib\site-packages\livekit\plugins\google\realtime\realtime_api
+.py", line 1105, in _recv_task
+    async for response in session.receive():
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 456, in 
+receive
+    while result := await self._receive():
+                    ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\live.py", line 547, in 
+_receive
+    errors.APIError.raise_error(code, reason, None)
+  File "D:\JARVIS\.venv\Lib\site-packages\google\genai\errors.py", line 206, in
+raise_error
+    raise cls(status_code, response_json, response)
+google.genai.errors.APIError: 1006 None. abnormal closure [internal]
+DEBUG:livekit.plugins.google:connecting to Gemini Realtime API...
+    20:56:06.914 DEBUG    livekit.…ns.google connecting to Gemini Realtime     
+                                             API...                            
+INFO:jarvis.server:UI participant connected: commander
+    20:58:51.391 INFO     jarvis.server      UI participant connected:         
+                                             commander                         
+INFO:jarvis.server:[STARTUP] UI connected; sending greeting | 337.717s
+    20:58:51.404 INFO     jarvis.server      [STARTUP] UI connected; sending   
+                                             greeting | 337.717s               
+DEBUG:livekit.agents:start reading stream
+    20:58:51.523 DEBUG    livekit.agents     start reading stream  
+                                         {"participant": "commander", "source":
+"SOURCE_MICROPHONE"}
+DEBUG:livekit.agents:aec warmup active, disabling interruptions for 3.00s
+    20:58:52.868 DEBUG    livekit.agents     aec warmup active, disabling      
+                                             interruptions for 3.00s           
+DEBUG:livekit.agents:aec warmup expired, re-enabling interruptions
+    20:58:55.864 DEBUG    livekit.agents     aec warmup expired, re-enabling   
+                                             interruptions                     
+DEBUG:livekit.agents:conversation_item_added
+    20:58:57.821 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "assistant", "lk.pii.text": 
+"Good evening, sir. Ready to see what needs attention tonight?"}
+INFO:jarvis.server:[STARTUP] Wake-triggered greeting completed | 344.148s
+    20:58:57.835 INFO     jarvis.server      [STARTUP] Wake-triggered          
+                                             greeting completed | 344.148s     
+DEBUG:livekit.agents:conversation_item_added
+    20:59:20.579 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "user", "lk.pii.text": "फिल्मों के
+नाम है डबल डिग्री।"}
+DEBUG:livekit.agents:conversation_item_added
+    20:59:20.609 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "assistant", "lk.pii.text": 
+"Sir, kya aap"}
+DEBUG:livekit.agents:conversation_item_added
+    20:59:29.353 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "user", "lk.pii.text": 
+"ticket rate"}
+DEBUG:livekit.agents:conversation_item_added
+    20:59:29.373 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "assistant", "lk.pii.text": 
+"Sir, किस चीज़"}
+DEBUG:livekit.agents:conversation_item_added
+    20:59:30.267 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "user", "lk.pii.text": 
+"network is"}
+DEBUG:livekit.agents:conversation_item_added
+    20:59:35.434 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "user", "lk.pii.text": "क्या 
+हमने पहले कोई बात की है?"}
+DEBUG:livekit.agents:conversation_item_added
+    20:59:35.455 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "assistant", "lk.pii.text": 
+"जी सर, हमारी बातचीत जारी है। बताइए, आज क्या मदद करूँ?"}
+DEBUG:livekit.agents:conversation_item_added
+    20:59:51.534 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "user", "lk.pii.text": "क्या 
+हमने पहले भी इंटरेक्शन की है? या यह हमारा पहला इंटरेक्शन है?"}
+DEBUG:livekit.agents:conversation_item_added
+    20:59:51.552 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "assistant", "lk.pii.text": 
+"यह हमारा पहला इंटरेक्शन है, सर। बताइए, आज क्या मदद करूँ?"}
+INFO:jarvis.server:UI participant disconnected: commander; greeting re-armed
+    21:00:22.090 INFO     jarvis.server      UI participant disconnected:      
+                                             commander; greeting re-armed      
+DEBUG:livekit.agents:stream closed
+    21:00:22.103 DEBUG    livekit.agents     stream closed  
+                                         {"participant": "commander", "source":
+"SOURCE_MICROPHONE"}
+INFO:jarvis.server:UI participant connected: commander
+    21:04:10.364 INFO     jarvis.server      UI participant connected:         
+                                             commander                         
+INFO:jarvis.server:[STARTUP] UI connected; sending greeting | 656.687s
+    21:04:10.374 INFO     jarvis.server      [STARTUP] UI connected; sending   
+                                             greeting | 656.687s               
+DEBUG:livekit.agents:start reading stream
+    21:04:10.467 DEBUG    livekit.agents     start reading stream  
+                                         {"participant": "commander", "source":
+"SOURCE_MICROPHONE"}
+DEBUG:livekit.agents:aec warmup active, disabling interruptions for 3.00s
+    21:04:11.499 DEBUG    livekit.agents     aec warmup active, disabling      
+                                             interruptions for 3.00s           
+DEBUG:livekit.agents:aec warmup expired, re-enabling interruptions
+    21:04:14.506 DEBUG    livekit.agents     aec warmup expired, re-enabling   
+                                             interruptions                     
+DEBUG:livekit.agents:conversation_item_added
+    21:04:15.641 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "assistant", "lk.pii.text": 
+"Good night, sir. Ready to wrap things up or is there something else to attend 
+to?"}
+INFO:jarvis.server:[STARTUP] Wake-triggered greeting completed | 661.960s
+    21:04:15.648 INFO     jarvis.server      [STARTUP] Wake-triggered          
+                                             greeting completed | 661.960s     
+DEBUG:livekit.agents:conversation_item_added
+    21:04:36.440 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "user", "lk.pii.text": "यह 
+हमारा पहला इंटरेक्शन है या फिर हमने पहले भी इंटरेक्शन की है या यह हमारा पहला है?"}
+DEBUG:livekit.agents:conversation_item_added
+    21:04:36.465 DEBUG    livekit.agents     conversation_item_added  
+                                         {"role": "assistant", "lk.pii.text": 
+"यह हमारा पहला इंटरेक्शन है, सर। बताइए, आज क्या मदद करूँ?"}
+INFO:jarvis.server:UI participant disconnected: commander; greeting re-armed
+    21:04:49.874 INFO     jarvis.server      UI participant disconnected:      
+                                             commander; greeting re-armed      
+DEBUG:livekit.agents:stream closed
+    21:04:49.883 DEBUG    livekit.agents     stream closed  
+                                         {"participant": "commander", "source":
+"SOURCE_MICROPHONE"}

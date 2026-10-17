@@ -1,16 +1,13 @@
+"""JARVIS launcher: keep the agent warm, listen for wake word only while UI is closed."""
+import json
+import os
 import socket
 import subprocess
 import time
 from pathlib import Path
 
-import numpy as np
-import sounddevice as sd
-import openwakeword
-from openwakeword.model import Model
+from wake_listener import WakeWordListener
 
-# ============================================================
-# CONFIGURATION
-# ============================================================
 ROOT = Path(r"D:\JARVIS")
 LIVEKIT_EXE = Path(r"D:\livekit\livekit-server.exe")
 APP_EXE = ROOT / "src-tauri" / "target" / "release" / "app.exe"
@@ -18,16 +15,10 @@ VENV_PYTHON = ROOT / ".venv" / "Scripts" / "python.exe"
 LIVEKIT_HOST, LIVEKIT_PORT = "127.0.0.1", 7880
 API_HOST, API_PORT = "127.0.0.1", 8080
 ROOM_NAME = "jarvis-room"
-SAMPLE_RATE = 16000
-FRAME_SIZE = 1280  # 80 ms
-WAKE_THRESHOLD = 0.50
-WAKE_CONFIRM_FRAMES = 2
-POST_SESSION_DISCARD_SECONDS = 1.0
-REARM_THRESHOLD = 0.10
-REARM_QUIET_SECONDS = 1.0
-WAKE_COOLDOWN = 3.0
 AGENT_READY_TIMEOUT = 45.0
-MODEL_PATH = Path(openwakeword.__file__).parent / "resources" / "models" / "hey_jarvis_v0.1.onnx"
+# Keep the room alive for 24 hours after the UI participant disconnects.
+# LiveKit's default departure_timeout is 20 seconds.
+ROOM_DEPARTURE_TIMEOUT_SECONDS = 86400
 LOG_DIR = ROOT / "logs"
 LOG_HANDLES = []
 livekit_process = None
@@ -44,18 +35,28 @@ def log(message):
 
 def start_hidden(command, cwd, log_name, truncate=False):
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-    mode = "w" if truncate else "a"
-    handle = open(LOG_DIR / log_name, mode, encoding="utf-8", buffering=1)
+    handle = open(LOG_DIR / log_name, "w" if truncate else "a", encoding="utf-8", buffering=1)
     LOG_HANDLES.append(handle)
     log(f"Starting background process: {log_name}")
+    child_env = os.environ.copy()
+    child_env["PYTHONUTF8"] = "1"
+    child_env["PYTHONIOENCODING"] = "utf-8"
     return subprocess.Popen(
-        command,
-        cwd=str(cwd),
-        stdin=subprocess.DEVNULL,
-        stdout=handle,
-        stderr=subprocess.STDOUT,
+        command, cwd=str(cwd), stdin=subprocess.DEVNULL,
+        stdout=handle, stderr=subprocess.STDOUT, env=child_env,
         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
     )
+
+
+def close_log_handles(log_name):
+    target = (LOG_DIR / log_name).resolve()
+    for handle in list(LOG_HANDLES):
+        try:
+            if Path(handle.name).resolve() == target:
+                handle.close()
+                LOG_HANDLES.remove(handle)
+        except (OSError, ValueError):
+            pass
 
 
 def port_ready(host, port):
@@ -72,7 +73,7 @@ def wait_for_port(host, port, process=None, timeout=30):
         if port_ready(host, port):
             return
         if process is not None and process.poll() is not None:
-            raise RuntimeError(f"Process exited ({process.returncode}) before {host}:{port} became ready.")
+            raise RuntimeError(f"Process exited ({process.returncode}) before {host}:{port} became ready")
         time.sleep(0.15)
     raise TimeoutError(f"Timed out waiting for {host}:{port}")
 
@@ -82,186 +83,114 @@ def stop_process_tree(process, name):
         return
     log(f"Stopping {name}...")
     try:
-        result = subprocess.run(
+        subprocess.run(
             ["taskkill", "/PID", str(process.pid), "/T", "/F"],
-            capture_output=True, text=True, timeout=8,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            timeout=4, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            check=False,
         )
-        if result.returncode:
-            log(f"Could not taskkill {name}: {(result.stderr or result.stdout).strip()}")
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        log(f"Could not stop {name}: {exc}")
-        try:
-            process.terminate()
-        except OSError:
-            pass
-    try:
-        process.wait(timeout=2)
-    except (subprocess.TimeoutExpired, OSError):
+    except (OSError, subprocess.TimeoutExpired, KeyboardInterrupt):
         try:
             process.kill()
-        except OSError:
+        except (OSError, ProcessLookupError):
             pass
+    try:
+        process.wait(timeout=1.5)
+    except (subprocess.TimeoutExpired, OSError, KeyboardInterrupt):
+        pass
 
 
 def start_background_services():
-    """Start LiveKit/API and keep them running while the wake listener waits."""
     global livekit_process, api_process, owns_livekit, owns_api
     if port_ready(LIVEKIT_HOST, LIVEKIT_PORT):
-        log("LiveKit already ready; leaving existing server alone.")
-    else:
-        if not LIVEKIT_EXE.exists():
-            raise FileNotFoundError(f"LiveKit executable not found: {LIVEKIT_EXE}")
-        livekit_process = start_hidden([str(LIVEKIT_EXE), "--dev"], LIVEKIT_EXE.parent, "livekit.log")
-        owns_livekit = True
-        wait_for_port(LIVEKIT_HOST, LIVEKIT_PORT, livekit_process, timeout=30)
-        log("LiveKit ready.")
+        raise RuntimeError(
+            "A LiveKit server is already listening on 127.0.0.1:7880. "
+            "The new departure_timeout cannot be applied to an already-running server. "
+            "Stop the existing livekit-server.exe, then run start_jarvis.py again."
+        )
+    if not LIVEKIT_EXE.exists():
+        raise FileNotFoundError(f"LiveKit executable not found: {LIVEKIT_EXE}")
+    config_body = json.dumps({"room": {"departure_timeout": ROOM_DEPARTURE_TIMEOUT_SECONDS}})
+    livekit_process = start_hidden(
+        [str(LIVEKIT_EXE), "--dev", "--config-body", config_body],
+        LIVEKIT_EXE.parent, "livekit.log",
+    )
+    owns_livekit = True
+    wait_for_port(LIVEKIT_HOST, LIVEKIT_PORT, livekit_process, 30)
+    log(
+        "LiveKit ready. Room departure timeout="
+        f"{ROOM_DEPARTURE_TIMEOUT_SECONDS}s (24 hours)."
+    )
 
     if port_ready(API_HOST, API_PORT):
         log("FastAPI already ready; leaving existing server alone.")
     else:
-        if not VENV_PYTHON.exists():
-            raise FileNotFoundError(f"Virtual environment Python not found: {VENV_PYTHON}")
         api_process = start_hidden(
             [str(VENV_PYTHON), "-m", "uvicorn", "web_server:app", "--host", API_HOST, "--port", str(API_PORT)],
             ROOT, "fastapi.log",
         )
         owns_api = True
-        wait_for_port(API_HOST, API_PORT, api_process, timeout=30)
+        wait_for_port(API_HOST, API_PORT, api_process, 30)
         log("FastAPI ready.")
 
 
+def read_agent_log():
+    try:
+        return (LOG_DIR / "agent.log").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
 def start_warm_agent():
-    """Start the LiveKit/Gemini agent before listening for the wake word."""
+    """Start agent once and wait until the Realtime session is connected."""
     global agent_process, owns_agent
     if not VENV_PYTHON.exists():
         raise FileNotFoundError(f"Virtual environment Python not found: {VENV_PYTHON}")
-    agent_log = LOG_DIR / "agent.log"
+    close_log_handles("agent.log")
     agent_process = start_hidden(
         [str(VENV_PYTHON), "main.py", "connect", "--room", ROOM_NAME],
         ROOT, "agent.log", truncate=True,
     )
     owns_agent = True
-    log("Waiting for the agent's Realtime session to become ready...")
+    log("Warming up JARVIS agent before enabling wake-word listening...")
     deadline = time.monotonic() + AGENT_READY_TIMEOUT
     while time.monotonic() < deadline:
         if agent_process.poll() is not None:
-            raise RuntimeError(f"JARVIS agent exited early ({agent_process.returncode}); inspect {agent_log}")
-        try:
-            content = agent_log.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            content = ""
+            raise RuntimeError(f"Agent exited ({agent_process.returncode}); inspect {LOG_DIR / 'agent.log'}")
+        content = read_agent_log()
         if "session.start completed; waiting for wake-triggered UI connection" in content:
-            log("JARVIS agent and Realtime session are warm. Starting wake listener.")
+            log("JARVIS agent is warm. Wake-word listener can start.")
             return
-        # Also report the existing marker while using an older server.py, which may
-        # still use the original startup text. That version won't defer its greeting.
-        if "[STARTUP] session.start completed" in content and "waiting for wake-triggered UI connection" not in content:
-            log("Agent session started, but server.py is not the prewarmed version. Replace server.py too.")
-            raise RuntimeError("The current server.py sends greeting immediately; install server_prewarmed.py as server.py first.")
+        if "failed to start agentsession" in content.lower() and "job exiting" in content.lower():
+            raise RuntimeError(f"Agent startup failed; inspect {LOG_DIR / 'agent.log'}")
         time.sleep(0.15)
-    raise TimeoutError(f"Agent session did not become ready in {AGENT_READY_TIMEOUT:.0f}s; inspect {agent_log}")
+    raise TimeoutError(f"Agent did not become ready in {AGENT_READY_TIMEOUT:.0f}s; inspect {LOG_DIR / 'agent.log'}")
 
 
-def restart_warm_agent():
-    """Create a fresh LiveKit/Gemini session after the UI closes."""
-    global agent_process, owns_agent
-
-    log("Refreshing JARVIS agent after UI closed...")
-
-    # Stop the previous worker and its child processes.
-    if agent_process is not None:
-        stop_process_tree(agent_process, "old JARVIS agent")
-
-    agent_process = None
-    time.sleep(1.5)
-
-    # Start a fresh worker and wait for Gemini Realtime readiness.
-    start_warm_agent()
+def ensure_agent_process():
+    """Only restart when the actual agent process exited; never infer from old log text."""
+    global agent_process
+    if agent_process is None or agent_process.poll() is not None:
+        log("Agent process has exited; restarting before opening UI.")
+        if agent_process is not None:
+            stop_process_tree(agent_process, "old JARVIS agent")
+        time.sleep(0.4)
+        start_warm_agent()
 
 
 def open_ui_until_closed():
     if not APP_EXE.exists():
         raise FileNotFoundError(f"JARVIS UI not found: {APP_EXE}")
-    log("Wake detected. Opening JARVIS UI; agent and Gemini session are already warm.")
+    ensure_agent_process()
+    log("Wake detected. Opening JARVIS UI; wake listener is paused while UI is open.")
     app = subprocess.Popen([str(APP_EXE)], cwd=str(APP_EXE.parent))
     while app.poll() is None:
-        if agent_process is not None and agent_process.poll() is not None:
-            log(f"WARNING: warm agent exited with code {agent_process.returncode}; see logs\\agent.log")
-            break
-        time.sleep(0.2)
-    log("JARVIS UI closed; agent will be refreshed before the next wake.")
-
-
-def reset_wake_model():
-    log("Loading/resetting wake-word model...")
-    return Model(wakeword_model_paths=[str(MODEL_PATH)])
-
-
-def get_wake_score(model, frame):
-    predictions = model.predict(frame)
-    if not predictions:
-        return 0.0, "unknown"
-    key, value = max(predictions.items(), key=lambda item: float(item[1]))
-    return float(value), key
-
-
-def wait_until_rearmed(stream, model):
-    discard_frames = int(POST_SESSION_DISCARD_SECONDS * SAMPLE_RATE / FRAME_SIZE)
-    log(f"Discarding old audio for {POST_SESSION_DISCARD_SECONDS:.1f}s...")
-    for _ in range(discard_frames):
-        stream.read(FRAME_SIZE)
-    log("Waiting for detector to become quiet...")
-    needed = max(1, int(REARM_QUIET_SECONDS * SAMPLE_RATE / FRAME_SIZE))
-    quiet = 0
-    while quiet < needed:
-        audio, overflowed = stream.read(FRAME_SIZE)
-        if overflowed:
-            quiet = 0
-            continue
-        score, _ = get_wake_score(model, np.asarray(audio).reshape(-1))
-        quiet = quiet + 1 if score < REARM_THRESHOLD else 0
-    log("Wake detector rearmed; listening for a new 'Hey JARVIS'.")
-
-
-def listen_for_wake_word():
-    if not MODEL_PATH.exists():
-        raise FileNotFoundError(f"Wake-word model not found: {MODEL_PATH}")
-    model = reset_wake_model()
-    log(f"Wake model ready. Threshold={WAKE_THRESHOLD:.2f}; confirmation={WAKE_CONFIRM_FRAMES} frames.")
-    log("Listening. Say 'Hey JARVIS'.")
-    last_detection = 0.0
-    while True:
-        detected = False
-        high_frames = 0
-        high_key = "unknown"
-        high_score = 0.0
-        with sd.InputStream(samplerate=SAMPLE_RATE, channels=1, dtype="int16", blocksize=FRAME_SIZE) as stream:
-            if last_detection:
-                wait_until_rearmed(stream, model)
-            while True:
-                audio, overflowed = stream.read(FRAME_SIZE)
-                if overflowed:
-                    high_frames = 0
-                    continue
-                score, key = get_wake_score(model, np.asarray(audio).reshape(-1))
-                if score >= WAKE_THRESHOLD:
-                    high_frames += 1
-                    high_key, high_score = key, score
-                else:
-                    high_frames = 0
-                now = time.monotonic()
-                if high_frames >= WAKE_CONFIRM_FRAMES and now - last_detection >= WAKE_COOLDOWN:
-                    last_detection = now
-                    log(f"Wake detected: {high_key}, score={high_score:.3f}")
-                    detected = True
-                    break
-
-        if detected:
-            open_ui_until_closed()
-            restart_warm_agent()
-            model = reset_wake_model()
-            log("Ready for the next wake word.")
+        # If agent process dies, recover it. This is uncommon; normal UI close keeps it warm.
+        if agent_process is None or agent_process.poll() is not None:
+            log("WARNING: agent process exited while UI was open. Restarting agent...")
+            start_warm_agent()
+        time.sleep(0.25)
+    log("JARVIS UI closed. Agent stays warm; no UI microphone/speaker stream is connected.")
 
 
 def main():
@@ -271,14 +200,27 @@ def main():
             raise FileNotFoundError(f"Required path not found: {required}")
     start_background_services()
     start_warm_agent()
-    listen_for_wake_word()
+    # The listener opens the microphone only while waiting. It returns after a wake
+    # detection, releasing the stream before the UI opens. UI close returns here.
+    listener = WakeWordListener(log=log)
+    while True:
+        try:
+            listener.wait_for_wake_word()
+            open_ui_until_closed()
+            listener.reset_after_ui_close()
+        except KeyboardInterrupt:
+            raise
+        except Exception as exc:
+            log(f"Wake/UI cycle error: {exc}; retrying in 1 second.")
+            time.sleep(1)
+            listener.reset_after_ui_close()
 
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        log("Wake listener stopped by user.")
+        log("JARVIS launcher stopped by user.")
     except Exception as exc:
         log(f"Fatal error: {exc}")
         raise
