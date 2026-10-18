@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -1029,14 +1029,14 @@ dependencies = [
     { name = "playwright" },
     { name = "psutil" },
     { name = "pyautogui" },
-    { name = "pycaw" },
+    { name = "pycaw", marker = "sys_platform == 'win32'" },
     { name = "pyperclip" },
     { name = "python-dotenv" },
-    { name = "pywin32" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
     { name = "screen-brightness-control" },
     { name = "sounddevice" },
     { name = "tzdata" },
-    { name = "uiautomation" },
+    { name = "uiautomation", marker = "sys_platform == 'win32'" },
     { name = "uvicorn" },
     { name = "vosk" },
     { name = "yt-dlp" },
@@ -1044,7 +1044,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "types-pywin32" },
+    { name = "types-pywin32", marker = "sys_platform == 'win32'" },
 ]
 
 [package.metadata]
@@ -1065,21 +1065,21 @@ requires-dist = [
     { name = "playwright", specifier = ">=1.63.0" },
     { name = "psutil", specifier = ">=7.2.2" },
     { name = "pyautogui", specifier = ">=0.9.54" },
-    { name = "pycaw", specifier = ">=20260921" },
+    { name = "pycaw", marker = "sys_platform == 'win32'", specifier = ">=20260921" },
     { name = "pyperclip", specifier = ">=1.11.0" },
     { name = "python-dotenv", specifier = ">=1.2.3" },
-    { name = "pywin32", specifier = ">=312" },
+    { name = "pywin32", marker = "sys_platform == 'win32'", specifier = ">=312" },
     { name = "screen-brightness-control", specifier = ">=0.27.2" },
     { name = "sounddevice", specifier = ">=0.5.6" },
     { name = "tzdata", specifier = ">=2026.3" },
-    { name = "uiautomation", specifier = ">=2.0.29" },
+    { name = "uiautomation", marker = "sys_platform == 'win32'", specifier = ">=2.0.29" },
     { name = "uvicorn", specifier = ">=0.52.4" },
     { name = "vosk", specifier = ">=0.3.45" },
     { name = "yt-dlp", specifier = ">=2026.8.19" },
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "types-pywin32", specifier = ">=312.0.0.20260827" }]
+dev = [{ name = "types-pywin32", marker = "sys_platform == 'win32'", specifier = ">=312.0.0.20260827" }]
 
 [[package]]
 name = "jinja2"

@@ -1,18 +1,32 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
-
-# Virtual environments
-.venv
-
-# env
+# Secrets / local environment
 .env
-.env.local
+.env.*
+!.env.example
 
-#logs
+# Logs and runtime output
 logs/
 *.log
+*.pid
+*.sock
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.wheels/
+build/
+dist/
+.venv/
+venv/
+
+# Node / frontend
+node_modules/
+
+# Tauri / Rust
+src-tauri/target/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

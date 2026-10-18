@@ -1,7 +1,7 @@
 [project]
 name = "jarvis"
 version = "0.1.0"
-description = "Add your description here"
+description = "Cross-platform JARVIS-inspired realtime voice assistant"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -21,14 +21,14 @@ dependencies = [
     "playwright>=1.63.0",
     "psutil>=7.2.2",
     "pyautogui>=0.9.54",
-    "pycaw>=20260921",
+    "pycaw>=20260921; sys_platform == 'win32'",
     "pyperclip>=1.11.0",
     "python-dotenv>=1.2.3",
-    "pywin32>=312",
+    "pywin32>=312; sys_platform == 'win32'",
     "screen-brightness-control>=0.27.2",
     "sounddevice>=0.5.6",
     "tzdata>=2026.3",
-    "uiautomation>=2.0.29",
+    "uiautomation>=2.0.29; sys_platform == 'win32'",
     "uvicorn>=0.52.4",
     "vosk>=0.3.45",
     "yt-dlp>=2026.8.19",
@@ -36,5 +36,5 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "types-pywin32>=312.0.0.20260827",
+    "types-pywin32>=312.0.0.20260827; sys_platform == 'win32'",
 ]
