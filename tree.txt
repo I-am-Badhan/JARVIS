@@ -44,6 +44,10 @@ JARVIS/
 │           ├── system.html
 │           └── system.js
 ├── generate_tree.py
+├── logs
+│   ├── agent.log
+│   ├── fastapi.log
+│   └── livekit.log
 ├── main.py
 ├── node_modules
 ├── package-lock.json
@@ -77,6 +81,8 @@ JARVIS/
 │       └── tts_service.py
 ├── session.py
 ├── src-tauri
+├── start_jarvis.py
+├── start_jarvis_hidden.vbs
 ├── test.py
 ├── tools
 │   ├── DesktopAutomation
@@ -99,4 +105,5 @@ JARVIS/
 │   ├── greet.py
 │   └── interruption.py
 ├── uv.lock
+├── wake_listener.py
 └── web_server.py
